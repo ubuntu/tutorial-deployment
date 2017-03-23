@@ -1,2 +1,2 @@
-# tutorial-deployement
+# tutorial-deployment
 Tutorial deployment tools
