@@ -71,25 +71,13 @@ func DetectPaths() (err error) {
 		}
 	}
 
-	if Paths.Export == defaultRelativeExportPath {
-		Paths.Export = path.Join(Paths.Website, Paths.Export)
-	}
-	Paths.Export, err = filepath.Abs(Paths.Export)
-	if err != nil {
+	if err = sanitizeRelPathToWebsite(&Paths.Export, defaultRelativeExportPath, Paths.Website); err != nil {
 		return err
 	}
-	if Paths.MetaData == defaultRelativeMetadataPath {
-		Paths.MetaData = path.Join(Paths.Website, defaultRelativeMetadataPath)
-	}
-	Paths.MetaData, err = filepath.Abs(Paths.MetaData)
-	if err != nil {
+	if err = sanitizeRelPathToWebsite(&Paths.MetaData, defaultRelativeMetadataPath, Paths.Website); err != nil {
 		return err
 	}
-	if Paths.API == defaultRelativeAPIPath {
-		Paths.API = path.Join(Paths.Website, defaultRelativeAPIPath)
-	}
-	Paths.API, err = filepath.Abs(Paths.API)
-	if err != nil {
+	if err = sanitizeRelPathToWebsite(&Paths.API, defaultRelativeAPIPath, Paths.Website); err != nil {
 		return err
 	}
 	return nil
@@ -128,4 +116,14 @@ RootDirsLoop:
 	}
 
 	return dir, nil
+}
+
+func sanitizeRelPathToWebsite(p *string, defP, website string) (err error) {
+	if *p == defP {
+		*p = path.Join(website, defP)
+	}
+	if *p, err = filepath.Abs(*p); err != nil {
+		return err
+	}
+	return nil
 }
