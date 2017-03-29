@@ -23,11 +23,11 @@ func TestDetectPaths(t *testing.T) {
 		errExpected bool
 	}{
 		{"/defined/website", "/other/export", "/metadata", "", "/defined/website", "/other/export", "/metadata", false},
-		{"/defined/website", "export/path", "metadata", "", "/defined/website", "export/path", "metadata", false},
-		{"", "export/path", "metadata", "testdata/nosite", "", "", "", true},                      // Error due to no site detected
-		{"", "export/path", "metadata", "testdata/partialwebsite", "", "", "", true},              // Error due to no site detected
-		{"", "export/path", "metadata", "testdata/website", "", "export/path", "metadata", false}, // Defined path are always relative to cwd, not website
-		{"", "export/path", "metadata", "testdata/website/subdir", "..", "export/path", "metadata", false},
+		{"/defined/website", "export/path", "alternative/metadata", "", "/defined/website", "export/path", "alternative/metadata", false},
+		{"", "export/path", "alternative/metadata", "testdata/nosite", "", "", "", true},                                  // Error due to no site detected
+		{"", "export/path", "alternative/metadata", "testdata/partialwebsite", "", "", "", true},                          // Error due to no site detected
+		{"", "export/path", "alternative/metadata", "testdata/website", "", "export/path", "alternative/metadata", false}, // Defined path are always relative to cwd, not website
+		{"", "export/path", "alternative/metadata", "testdata/website/subdir", "..", "export/path", "alternative/metadata", false},
 		{"", Paths.Export, Paths.MetaData, "testdata/website", "", defaultRelativeExportPath, defaultRelativeMetadataPath, false},
 	}
 	for _, tc := range testCases {

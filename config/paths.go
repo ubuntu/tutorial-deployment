@@ -24,7 +24,7 @@ var Paths = P{
 
 const (
 	defaultRelativeExportPath   = "src/codelabs"
-	defaultRelativeMetadataPath = "content"
+	defaultRelativeMetadataPath = "metadata"
 
 	defaultTutorialPathInMeta = "tutorials"
 	// GdocFilename for tutorials in google doc format.
