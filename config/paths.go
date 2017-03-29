@@ -34,13 +34,13 @@ const (
 )
 
 func init() {
-	flag.StringVar(&(Paths.Website), "w", "", "website root path directory where main index.html is located. Will "+
+	flag.StringVar(&Paths.Website, "w", "", "website root path directory where main index.html is located. Will "+
 		"autodetect if current directory is within the website repository")
-	flag.StringVar(&(Paths.Export), "e", defaultRelativeExportPath,
+	flag.StringVar(&Paths.Export, "e", defaultRelativeExportPath,
 		fmt.Sprintf("export path for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeExportPath))
-	flag.StringVar(&(Paths.MetaData), "i", defaultRelativeMetadataPath,
+	flag.StringVar(&Paths.MetaData, "i", defaultRelativeMetadataPath,
 		fmt.Sprintf("import path for metadata as template and events definition. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
-	flag.StringVar(&(Paths.API), "a", defaultRelativeAPIPath,
+	flag.StringVar(&Paths.API, "a", defaultRelativeAPIPath,
 		fmt.Sprintf("exported apis for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeAPIPath))
 }
 
