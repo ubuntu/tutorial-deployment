@@ -44,8 +44,7 @@ func init() {
 func (p *P) ImportTutorialPaths(tps []string) (err error) {
 	// default: tutorial and google doc reference path
 	if len(tps) == 0 {
-		tps = []string{path.Join(p.MetaData, defaultTutorialPathInMeta),
-			path.Join(p.MetaData, GdocFilename)}
+		tps = []string{path.Join(p.MetaData, defaultTutorialPathInMeta)}
 	}
 	for i, tp := range tps {
 		if tp, err = filepath.Abs(tp); err != nil {

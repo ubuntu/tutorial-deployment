@@ -76,7 +76,7 @@ func TestImportTutorialPaths(t *testing.T) {
 		paths         []string
 		expectedPaths []string
 	}{
-		{nil, []string{mp + defaultTutorialPathInMeta, mp + GdocFilename}},
+		{nil, []string{mp + defaultTutorialPathInMeta}},
 		{[]string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}, []string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}},
 		{[]string{"rep1", "../rep2/tut1.md", "rep3/rep5"}, []string{"rep1", "../rep2/tut1.md", "rep3/rep5"}},
 		{[]string{"/foo/rep1"}, []string{"/foo/rep1"}},
