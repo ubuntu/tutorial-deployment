@@ -30,39 +30,41 @@ func TestDetectPaths(t *testing.T) {
 		{"", "export/path", "metadata", "testdata/website/subdir", "..", "export/path", "metadata", false},
 		{"", Paths.Export, Paths.MetaData, "testdata/website", "", defaultRelativeExportPath, defaultRelativeMetadataPath, false},
 	}
-	for _, c := range testCases {
+	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("website: %s, export: %s, metadata: %s in [%s]",
-			c.websitePath, c.exportPath, c.metadataPath, c.cwd), func(t *testing.T) {
+			tc.websitePath, tc.exportPath, tc.metadataPath, tc.cwd), func(t *testing.T) {
 			// Setup/Teardown
-			defer chdir(t, c.cwd)()
-			defer changePathObject(c.websitePath, c.exportPath, c.metadataPath)()
-			c.wantWebsitePath = absPath(t, c.wantWebsitePath)
-			c.wantExportPath = absPath(t, c.wantExportPath)
-			c.wantMetaDataPath = absPath(t, c.wantMetaDataPath)
+			defer chdir(t, tc.cwd)()
+			defer changePathObject(tc.websitePath, tc.exportPath, tc.metadataPath)()
+			tc.wantWebsitePath = absPath(t, tc.wantWebsitePath)
+			tc.wantExportPath = absPath(t, tc.wantExportPath)
+			tc.wantMetaDataPath = absPath(t, tc.wantMetaDataPath)
 
 			// Test
 			err := DetectPaths()
 
 			// Error checking
-			if err != nil && !c.errExpected {
+			if err != nil && !tc.errExpected {
 				t.Errorf("DetectPaths errored out unexpectidely: %s", err)
 			}
-			if err == nil && c.errExpected {
+			if err == nil && tc.errExpected {
 				t.Error("DetectPaths expected an error and didn't")
 			}
-			if err != nil {
-				return // Error is fatal, we don't care about paths
+			if err != nil && tc.errExpected {
+				// Error is fatal, we don't care about paths
+				// We don't disable path checking if the error wasn't expected to help us diving into any issue
+				return
 			}
 
 			// Paths checks
-			if Paths.Website != c.wantWebsitePath {
-				t.Errorf("Website: got %s; want %s", Paths.Website, c.wantWebsitePath)
+			if Paths.Website != tc.wantWebsitePath {
+				t.Errorf("Website: got %s; want %s", Paths.Website, tc.wantWebsitePath)
 			}
-			if Paths.Export != c.wantExportPath {
-				t.Errorf("Export: got %s; want %s", Paths.Export, c.wantExportPath)
+			if Paths.Export != tc.wantExportPath {
+				t.Errorf("Export: got %s; want %s", Paths.Export, tc.wantExportPath)
 			}
-			if Paths.MetaData != c.wantMetaDataPath {
-				t.Errorf("Metadata: got %s; want %s", Paths.MetaData, c.wantMetaDataPath)
+			if Paths.MetaData != tc.wantMetaDataPath {
+				t.Errorf("Metadata: got %s; want %s", Paths.MetaData, tc.wantMetaDataPath)
 			}
 		})
 	}
