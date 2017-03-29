@@ -25,8 +25,8 @@ var Paths = P{
 const (
 	defaultRelativeExportPath   = "src/codelabs"
 	defaultRelativeMetadataPath = "metadata"
+	defaultTutorialPath         = "tutorials"
 
-	defaultTutorialPathInMeta = "tutorials"
 	// GdocFilename for tutorials in google doc format.
 	GdocFilename = "gdoc.def"
 )
@@ -37,14 +37,14 @@ func init() {
 	flag.StringVar(&(Paths.Export), "e", defaultRelativeExportPath,
 		fmt.Sprintf("export path for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeExportPath))
 	flag.StringVar(&(Paths.MetaData), "i", defaultRelativeMetadataPath,
-		fmt.Sprintf("import path for metadata and default tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
+		fmt.Sprintf("import path for metadata as template and events definition. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
 }
 
 // ImportTutorialPaths sanitizes relative paths, adding default if none provided
 func (p *P) ImportTutorialPaths(tps []string) (err error) {
 	// default: tutorial and google doc reference path
 	if len(tps) == 0 {
-		tps = []string{path.Join(p.MetaData, defaultTutorialPathInMeta)}
+		tps = []string{path.Join(p.Website, defaultTutorialPath)}
 	}
 	for i, tp := range tps {
 		if tp, err = filepath.Abs(tp); err != nil {

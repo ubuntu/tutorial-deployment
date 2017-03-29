@@ -71,12 +71,12 @@ func TestDetectPaths(t *testing.T) {
 }
 
 func TestImportTutorialPaths(t *testing.T) {
-	mp := "/foo/bar/"
+	website := "/ws/"
 	testCases := []struct {
 		paths         []string
 		expectedPaths []string
 	}{
-		{nil, []string{mp + defaultTutorialPathInMeta}},
+		{nil, []string{website + defaultTutorialPath}},
 		{[]string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}, []string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}},
 		{[]string{"rep1", "../rep2/tut1.md", "rep3/rep5"}, []string{"rep1", "../rep2/tut1.md", "rep3/rep5"}},
 		{[]string{"/foo/rep1"}, []string{"/foo/rep1"}},
@@ -85,7 +85,7 @@ func TestImportTutorialPaths(t *testing.T) {
 		t.Run(fmt.Sprintf("path argument: %+v", tc.paths), func(t *testing.T) {
 			// Setup/Teardown
 			p := P{
-				MetaData: "/foo/bar",
+				Website: website,
 			}
 			for i, expected := range tc.expectedPaths {
 				tc.expectedPaths[i] = absPath(t, expected)
