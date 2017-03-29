@@ -13,6 +13,7 @@ type P struct {
 	Website        string
 	Export         string
 	MetaData       string
+	API            string
 	TutorialInputs []string
 }
 
@@ -25,6 +26,7 @@ var Paths = P{
 const (
 	defaultRelativeExportPath   = "src/codelabs"
 	defaultRelativeMetadataPath = "metadata"
+	defaultRelativeAPIPath      = "api"
 	defaultTutorialPath         = "tutorials"
 
 	// GdocFilename for tutorials in google doc format.
@@ -38,6 +40,8 @@ func init() {
 		fmt.Sprintf("export path for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeExportPath))
 	flag.StringVar(&(Paths.MetaData), "i", defaultRelativeMetadataPath,
 		fmt.Sprintf("import path for metadata as template and events definition. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
+	flag.StringVar(&(Paths.API), "a", defaultRelativeAPIPath,
+		fmt.Sprintf("exported apis for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeAPIPath))
 }
 
 // ImportTutorialPaths sanitizes relative paths, adding default if none provided
@@ -78,6 +82,13 @@ func DetectPaths() (err error) {
 		Paths.MetaData = path.Join(Paths.Website, defaultRelativeMetadataPath)
 	}
 	Paths.MetaData, err = filepath.Abs(Paths.MetaData)
+	if err != nil {
+		return err
+	}
+	if Paths.API == defaultRelativeAPIPath {
+		Paths.API = path.Join(Paths.Website, defaultRelativeAPIPath)
+	}
+	Paths.API, err = filepath.Abs(Paths.API)
 	if err != nil {
 		return err
 	}

@@ -13,39 +13,42 @@ func TestDetectPaths(t *testing.T) {
 		websitePath  string
 		exportPath   string
 		metadataPath string
+		apiPath      string
 		cwd          string
 
 		// the wanted paths are relative to cwd defined above
 		wantWebsitePath  string
 		wantExportPath   string
 		wantMetaDataPath string
+		wantAPIPath      string
 
 		errExpected bool
 	}{
-		{"/defined/website", "/other/export", "/metadata", "", "/defined/website", "/other/export", "/metadata", false},
-		{"/defined/website", "export/path", "alternative/metadata", "", "/defined/website", "export/path", "alternative/metadata", false},
-		{"", "export/path", "alternative/metadata", "testdata/nosite", "", "", "", true},                                  // Error due to no site detected
-		{"", "export/path", "alternative/metadata", "testdata/partialwebsite", "", "", "", true},                          // Error due to no site detected
-		{"", "export/path", "alternative/metadata", "testdata/website", "", "export/path", "alternative/metadata", false}, // Defined path are always relative to cwd, not website
-		{"", "export/path", "alternative/metadata", "testdata/website/subdir", "..", "export/path", "alternative/metadata", false},
-		{"", Paths.Export, Paths.MetaData, "testdata/website", "", defaultRelativeExportPath, defaultRelativeMetadataPath, false},
+		{"/defined/website", "/other/export", "/metadata", "/api", "", "/defined/website", "/other/export", "/metadata", "/api", false},
+		{"/defined/website", "export/path", "alt/metadata", "alt/api", "", "/defined/website", "export/path", "alt/metadata", "alt/api", false},
+		{"", "export/path", "alt/metadata", "alt/api", "testdata/nosite", "", "", "", "", true},                                 // Error due to no site detected
+		{"", "export/path", "alt/metadata", "alt/api", "testdata/partialwebsite", "", "", "", "", true},                         // Error due to no site detected
+		{"", "export/path", "alt/metadata", "alt/api", "testdata/website", "", "export/path", "alt/metadata", "alt/api", false}, // Defined path are always relative to cwd, not website
+		{"", "export/path", "alt/metadata", "alt/api", "testdata/website/subdir", "..", "export/path", "alt/metadata", "alt/api", false},
+		{"", Paths.Export, Paths.MetaData, Paths.API, "testdata/website", "", defaultRelativeExportPath, defaultRelativeMetadataPath, defaultRelativeAPIPath, false},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("website: %s, export: %s, metadata: %s in [%s]",
-			tc.websitePath, tc.exportPath, tc.metadataPath, tc.cwd), func(t *testing.T) {
+		t.Run(fmt.Sprintf("(website: %s), (export: %s), (metadata: %s), (api: %s) in [%s]",
+			tc.websitePath, tc.exportPath, tc.metadataPath, tc.apiPath, tc.cwd), func(t *testing.T) {
 			// Setup/Teardown
 			defer chdir(t, tc.cwd)()
-			defer changePathObject(tc.websitePath, tc.exportPath, tc.metadataPath)()
+			defer changePathObject(tc.websitePath, tc.exportPath, tc.metadataPath, tc.apiPath)()
 			tc.wantWebsitePath = absPath(t, tc.wantWebsitePath)
 			tc.wantExportPath = absPath(t, tc.wantExportPath)
 			tc.wantMetaDataPath = absPath(t, tc.wantMetaDataPath)
+			tc.wantAPIPath = absPath(t, tc.apiPath)
 
 			// Test
 			err := DetectPaths()
 
 			// Error checking
 			if err != nil && !tc.errExpected {
-				t.Errorf("DetectPaths errored out unexpectidely: %s", err)
+				t.Errorf("DetectPaths errored out unexpectedly: %s", err)
 			}
 			if err == nil && tc.errExpected {
 				t.Error("DetectPaths expected an error and didn't")
@@ -65,6 +68,9 @@ func TestDetectPaths(t *testing.T) {
 			}
 			if Paths.MetaData != tc.wantMetaDataPath {
 				t.Errorf("Metadata: got %s; want %s", Paths.MetaData, tc.wantMetaDataPath)
+			}
+			if Paths.API != tc.wantAPIPath {
+				t.Errorf("API: got %s; want %s", Paths.API, tc.wantAPIPath)
 			}
 		})
 	}
@@ -130,12 +136,13 @@ func absPath(t *testing.T, path string) string {
 	return path
 }
 
-func changePathObject(w, e, m string) func() {
+func changePathObject(w, e, m, a string) func() {
 	oldPath := Paths
 	Paths = P{
 		Website:  w,
 		Export:   e,
 		MetaData: m,
+		API:      a,
 	}
 
 	return func() {
