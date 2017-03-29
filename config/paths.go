@@ -10,9 +10,10 @@ import (
 
 // P is used for the main Paths object
 type P struct {
-	Website  string
-	Export   string
-	MetaData string
+	Website        string
+	Export         string
+	MetaData       string
+	TutorialInputs []string
 }
 
 // Paths encapsulate global path properties of the project
@@ -24,6 +25,10 @@ var Paths = P{
 const (
 	defaultRelativeExportPath   = "src/codelabs"
 	defaultRelativeMetadataPath = "content"
+
+	defaultTutorialPathInMeta = "tutorials"
+	// GdocFilename for tutorials in google doc format.
+	GdocFilename = "gdoc.def"
 )
 
 func init() {
@@ -33,6 +38,25 @@ func init() {
 		fmt.Sprintf("export path for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeExportPath))
 	flag.StringVar(&(Paths.MetaData), "i", defaultRelativeMetadataPath,
 		fmt.Sprintf("import path for metadata and default tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
+}
+
+// ImportTutorialPaths sanitizes relative paths, adding default if none provided
+func (p *P) ImportTutorialPaths(tps []string) (err error) {
+	// default: tutorial and google doc reference path
+	if len(tps) == 0 {
+		tps = []string{path.Join(p.MetaData, defaultTutorialPathInMeta),
+			path.Join(p.MetaData, GdocFilename)}
+	}
+	for i, tp := range tps {
+		if tp, err = filepath.Abs(tp); err != nil {
+			if err != nil {
+				return err
+			}
+		}
+		tps[i] = tp
+	}
+	p.TutorialInputs = tps
+	return nil
 }
 
 // DetectPaths search for paths and load them accordingly to flags

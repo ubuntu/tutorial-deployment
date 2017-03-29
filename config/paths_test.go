@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -62,6 +63,40 @@ func TestDetectPaths(t *testing.T) {
 			}
 			if Paths.MetaData != c.wantMetaDataPath {
 				t.Errorf("Metadata: got %s; want %s", Paths.MetaData, c.wantMetaDataPath)
+			}
+		})
+	}
+}
+
+func TestImportTutorialPaths(t *testing.T) {
+	mp := "/foo/bar/"
+	testCases := []struct {
+		paths         []string
+		expectedPaths []string
+	}{
+		{nil, []string{mp + defaultTutorialPathInMeta, mp + GdocFilename}},
+		{[]string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}, []string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}},
+		{[]string{"rep1", "../rep2/tut1.md", "rep3/rep5"}, []string{"rep1", "../rep2/tut1.md", "rep3/rep5"}},
+		{[]string{"/foo/rep1"}, []string{"/foo/rep1"}},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("path argument: %+v", tc.paths), func(t *testing.T) {
+			// Setup/Teardown
+			p := P{
+				MetaData: "/foo/bar",
+			}
+			for i, expected := range tc.expectedPaths {
+				tc.expectedPaths[i] = absPath(t, expected)
+			}
+
+			// Test
+			err := p.ImportTutorialPaths(tc.paths)
+			if err != nil {
+				t.Errorf("err: %s", err)
+			}
+
+			if !reflect.DeepEqual(p.TutorialInputs, tc.expectedPaths) {
+				t.Errorf("Import path: got %+v; want %+v", p.TutorialInputs, tc.expectedPaths)
 			}
 		})
 	}
