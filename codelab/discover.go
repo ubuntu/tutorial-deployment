@@ -10,13 +10,13 @@ import (
 
 	"path"
 
+	"github.com/ubuntu/tutorial-deployment/consts"
 	"github.com/ubuntu/tutorial-deployment/internaltools"
 	"github.com/ubuntu/tutorial-deployment/paths"
 )
 
 const (
 	gdocFileName = "gdoc.def"
-	gdocPrefix   = "gdoc:"
 )
 
 // Discover existing codelabs in the import path
@@ -87,7 +87,7 @@ func getCodelabReference(p string) (r []string, err error) {
 		if strings.HasPrefix(l, "#") || len(l) == 0 {
 			continue
 		}
-		r = append(r, fmt.Sprintf("%s%s", gdocPrefix, l))
+		r = append(r, fmt.Sprintf("%s%s", consts.GdocPrefix, l))
 	}
 	if err := s.Err(); err != nil {
 		return nil, fmt.Errorf("Couldn't read %s: %v", p, err)
