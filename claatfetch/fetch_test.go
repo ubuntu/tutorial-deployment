@@ -14,18 +14,14 @@
 
 // Most of this file is heavily inspired from https://github.com/googlecodelabs/tools/blob/master/claat/fetch_test.go
 
-package main
+package claatfetch
 
 import (
-	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/didrocks/codelab-ubuntu-tools/claat/render"
-	"github.com/didrocks/codelab-ubuntu-tools/claat/types"
 )
 
 type testTransport struct {
@@ -54,9 +50,6 @@ func TestFetchRemote(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer res.body.Close()
-	if res.typ != srcMarkdown {
-		t.Errorf("typ = %q; want %q", res.typ, srcMarkdown)
-	}
 	b, _ := ioutil.ReadAll(res.body)
 	if s := string(b); s != "test" {
 		t.Errorf("res = %q; want 'test'", s)
@@ -85,21 +78,18 @@ func TestFetchRemoteDrive(t *testing.T) {
 	}}
 	clients[providerGoogle] = &http.Client{Transport: rt}
 
-	res, err := fetchRemote("doc-123", false)
+	res, err := fetchRemote("gdoc:doc-123", false)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer res.body.Close()
-	if res.typ != srcGoogleDoc {
-		t.Errorf("typ = %q; want %q", res.typ, srcGoogleDoc)
-	}
 	b, _ := ioutil.ReadAll(res.body)
 	if s := string(b); s != "test" {
 		t.Errorf("res = %q; want 'test'", s)
 	}
 }
 
-func TestSlurpWithFragment(t *testing.T) {
+/*func TestSlurpWithFragment(t *testing.T) {
 	dochtml, err := ioutil.ReadFile("testdata/gdoc.html")
 	if err != nil {
 		t.Fatal(err)
@@ -155,7 +145,7 @@ func TestSlurpWithFragment(t *testing.T) {
 	if !strings.Contains(string(html), want) {
 		t.Errorf("%s does not contain %q", html, want)
 	}
-}
+}*/
 
 func TestGdocID(t *testing.T) {
 	tests := []struct{ in, out string }{

@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+// Most of this file is heavily inspired from https://github.com/googlecodelabs/tools/blob/master/claat/fetch.go
+
+package claatfetch
 
 import (
 	"encoding/json"
 	"fmt"
-	"hash/crc64"
 	"io"
 	"io/ioutil"
 	"math"
@@ -25,107 +26,26 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
-	"path"
-
-	"github.com/didrocks/codelab-ubuntu-tools/claat/parser"
-	"github.com/didrocks/codelab-ubuntu-tools/claat/types"
+	"github.com/ubuntu/tutorial-deployment/consts"
 )
-
-const (
-	// supported codelab source types must be registered parsers
-	// TODO: define these in claat/parser/..., e.g. in parser/gdoc
-	srcInvalid   srcType = ""
-	srcGoogleDoc srcType = "gdoc" // Google Docs doc
-	srcMarkdown  srcType = "md"   // Markdown text
-
-	// driveAPI is a base URL for Drive API
-	driveAPI = "https://www.googleapis.com/drive/v3"
-)
-
-// srcType is codelab source type
-type srcType string
 
 // resource is a codelab resource, loaded from local file
 // or fetched from remote location.
 type resource struct {
-	typ  srcType       // source type
 	body io.ReadCloser // resource body
 	mod  time.Time     // last update of content
 }
 
-// codelab wraps types.Codelab, while adding source type
-// and modified timestamp fields.
-type codelab struct {
-	*types.Codelab
-	typ srcType   //  source type
-	mod time.Time // last modified timestamp
-}
+// driveAPI is a base URL for Drive API
+const driveAPI = "https://www.googleapis.com/drive/v3"
 
-// slurpCodelab retrieves and parses codelab source.
-// It returns parsed codelab and its source type.
-//
-// The function will also fetch and parse fragments included
-// with types.ImportNode.
-func slurpCodelab(src string) (*codelab, error) {
-	res, err := fetch(src)
-	if err != nil {
-		return nil, err
-	}
-	defer res.body.Close()
-	clab, err := parser.Parse(string(res.typ), res.body)
-	if err != nil {
-		return nil, err
-	}
-
-	// fetch imports and parse them as fragments
-	var imports []*types.ImportNode
-	for _, st := range clab.Steps {
-		imports = append(imports, importNodes(st.Content.Nodes)...)
-	}
-	ch := make(chan error, len(imports))
-	defer close(ch)
-	for _, imp := range imports {
-		go func(n *types.ImportNode) {
-			frag, err := slurpFragment(n.URL)
-			if err != nil {
-				ch <- fmt.Errorf("%s: %v", n.URL, err)
-				return
-			}
-			n.Content.Nodes = frag
-			ch <- nil
-		}(imp)
-	}
-	for _ = range imports {
-		if err := <-ch; err != nil {
-			return nil, err
-		}
-	}
-
-	v := &codelab{
-		Codelab: clab,
-		typ:     res.typ,
-		mod:     res.mod,
-	}
-	return v, nil
-}
-
-func slurpFragment(url string) ([]types.Node, error) {
-	res, err := fetchRemote(url, true)
-	if err != nil {
-		return nil, err
-	}
-	defer res.body.Close()
-	return parser.ParseFragment(string(res.typ), res.body)
-}
-
-// fetch retrieves codelab doc either from local disk
+// Fetch retrieves codelab doc either from local disk
 // or a remote location.
 // The caller is responsible for closing returned stream.
-func fetch(name string) (*resource, error) {
+func Fetch(name string) (*resource, error) {
 	fi, err := os.Stat(name)
 	if os.IsNotExist(err) {
 		return fetchRemote(name, false)
@@ -136,14 +56,13 @@ func fetch(name string) (*resource, error) {
 	}
 	return &resource{
 		body: r,
-		typ:  srcMarkdown,
 		mod:  fi.ModTime(),
 	}, nil
 }
 
 // fetchRemote retrieves resource r from the network.
 //
-// If urlStr is not a URL, i.e. does not have the host part, it is considered to be
+// If urlStr is not a URL and prepending by gdoc: i.e. does not have the host part, it is considered to be
 // a Google Doc ID and fetched accordingly. Otherwise, a simple GET request
 // is used to retrieve the contents.
 //
@@ -154,8 +73,8 @@ func fetchRemote(urlStr string, nometa bool) (*resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	if u.Host == "" || u.Host == "docs.google.com" {
-		return fetchDriveFile(urlStr, nometa)
+	if (u.Host == "" && strings.HasPrefix(urlStr, consts.GdocPrefix)) || u.Host == "docs.google.com" {
+		return fetchDriveFile(strings.TrimPrefix(urlStr, consts.GdocPrefix), nometa)
 	}
 	return fetchRemoteFile(urlStr)
 }
@@ -174,7 +93,6 @@ func fetchRemoteFile(url string) (*resource, error) {
 	return &resource{
 		body: res.Body,
 		mod:  t,
-		typ:  srcMarkdown,
 	}, nil
 }
 
@@ -196,7 +114,7 @@ func fetchDriveFile(id string, nometa bool) (*resource, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &resource{body: res.Body, typ: srcGoogleDoc}, nil
+		return &resource{body: res.Body}, nil
 	}
 
 	u := fmt.Sprintf("%s/files/%s?fields=id,mimeType,modifiedTime", driveAPI, id)
@@ -223,46 +141,7 @@ func fetchDriveFile(id string, nometa bool) (*resource, error) {
 	return &resource{
 		body: res.Body,
 		mod:  meta.Modified,
-		typ:  srcGoogleDoc,
 	}, nil
-}
-
-var crcTable = crc64.MakeTable(crc64.ECMA)
-
-func slurpBytes(client *http.Client, codelabSrc, dir, imgURL string, n int) (string, error) {
-	// images can be local in Markdown cases or remote.
-	// Only proceed a simple copy on local reference.
-	var b []byte
-	var ext string
-	u, err := url.Parse(imgURL)
-	if err != nil {
-		return "", err
-	}
-	if u.Host == "" {
-		imgURL = path.Join(path.Dir(codelabSrc), imgURL)
-		b, err = ioutil.ReadFile(imgURL)
-		ext = path.Ext(imgURL)
-	} else {
-		b, err = slurpRemoteBytes(client, dir, imgURL, 5)
-		ext = ".png"
-	}
-	if err != nil {
-		return "", err
-	}
-
-	crc := crc64.Checksum(b, crcTable)
-	file := fmt.Sprintf("%x%s", crc, ext)
-	dst := filepath.Join(dir, file)
-	return file, ioutil.WriteFile(dst, b, 0644)
-}
-
-func slurpRemoteBytes(client *http.Client, dir, url string, n int) ([]byte, error) {
-	res, err := retryGet(client, url, n)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	return ioutil.ReadAll(res.Body)
 }
 
 // retryGet tries to GET specified url up to n times.
