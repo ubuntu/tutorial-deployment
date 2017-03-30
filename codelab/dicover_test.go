@@ -10,9 +10,9 @@ import (
 
 func TestDiscover(t *testing.T) {
 	testCases := []struct {
-		tutorialPaths     []string
-		expectedTutorials []string
-		errExpected       bool
+		tutorialPaths []string
+		expected      []string
+		wantErr   bool
 	}{
 		{[]string{}, nil, false},
 		{[]string{"/doesnt/exist"}, nil, true},
@@ -39,14 +39,12 @@ func TestDiscover(t *testing.T) {
 
 			tutorials, err := Discover()
 
-			if err != nil && !tc.errExpected {
-				t.Errorf("Discover errored out unexpectedly: %s", err)
+			if (err != nil) != tc.wantErr {
+				t.Errorf("Discover() error = %v, wantErr %v", err, tc.wantErr)
+				return
 			}
-			if err == nil && tc.errExpected {
-				t.Error("Discvoer expected an error and didn't")
-			}
-			if !reflect.DeepEqual(tutorials, tc.expectedTutorials) {
-				t.Errorf("got %+v; want %+v", tutorials, tc.expectedTutorials)
+			if !reflect.DeepEqual(tutorials, tc.expected) {
+				t.Errorf("got %+v; want %+v", tutorials, tc.expected)
 			}
 		})
 	}

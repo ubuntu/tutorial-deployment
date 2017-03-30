@@ -22,8 +22,7 @@ func TestDetectPaths(t *testing.T) {
 		wantExportPath   string
 		wantMetaDataPath string
 		wantAPIPath      string
-
-		errExpected bool
+		wantErr          bool
 	}{
 		{"/defined/website", "/other/export", "/metadata", "/api", "", "/defined/website", "/other/export", "/metadata", "/api", false},
 		{"/defined/website", "export/path", "alt/metadata", "alt/api", "", "/defined/website", "export/path", "alt/metadata", "alt/api", false},
@@ -49,15 +48,12 @@ func TestDetectPaths(t *testing.T) {
 			err := p.DetectPaths()
 
 			// Error checking
-			if err != nil && !tc.errExpected {
-				t.Errorf("DetectPaths errored out unexpectedly: %s", err)
+			if err != nil != tc.wantErr {
+				t.Errorf("DetectPaths() error = %v, wantErr %v", err, tc.wantErr)
+				return
 			}
-			if err == nil && tc.errExpected {
-				t.Error("DetectPaths expected an error and didn't")
-			}
-			if err != nil && tc.errExpected {
+			if err != nil {
 				// Error is fatal, we don't care about paths
-				// We don't disable path checking if the error wasn't expected to help us diving into any issue
 				return
 			}
 
@@ -81,8 +77,8 @@ func TestDetectPaths(t *testing.T) {
 func TestImportTutorialPaths(t *testing.T) {
 	website := "/ws/"
 	testCases := []struct {
-		paths         []string
-		expectedPaths []string
+		paths     []string
+		wantPaths []string
 	}{
 		{nil, []string{website + defaultTutorialPath}},
 		{[]string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}, []string{"/rep1", "/rep2/tut1.md", "/rep3/rep5"}},
@@ -95,8 +91,8 @@ func TestImportTutorialPaths(t *testing.T) {
 			p := Path{
 				Website: website,
 			}
-			for i, expected := range tc.expectedPaths {
-				tc.expectedPaths[i] = absPath(t, expected)
+			for i, want := range tc.wantPaths {
+				tc.wantPaths[i] = absPath(t, want)
 			}
 
 			// Test
@@ -105,8 +101,8 @@ func TestImportTutorialPaths(t *testing.T) {
 				t.Errorf("err: %s", err)
 			}
 
-			if !reflect.DeepEqual(p.TutorialInputs, tc.expectedPaths) {
-				t.Errorf("Import path: got %+v; want %+v", p.TutorialInputs, tc.expectedPaths)
+			if !reflect.DeepEqual(p.TutorialInputs, tc.wantPaths) {
+				t.Errorf("Import path: got %+v; want %+v", p.TutorialInputs, tc.wantPaths)
 			}
 		})
 	}
