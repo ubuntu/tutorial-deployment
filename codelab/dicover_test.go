@@ -21,6 +21,7 @@ func TestDiscover(t *testing.T) {
 		{[]string{"testdata/nested"}, []string{"testdata/nested/subdir1/subsub/tut1.md", "testdata/nested/subdir1/subsub/tut2.md", "testdata/nested/subdir2/tut1.md", "testdata/nested/subdir2/tut2.md"}, false},
 		{[]string{"testdata/flat", "testdata/flat2"}, []string{"testdata/flat/tut1.md", "testdata/flat/tut2.md", "testdata/flat2/tut1.md"}, false},
 		{[]string{"testdata/withgdoc"}, []string{"gdoc:mytut1", "gdoc:mytut2"}, false},
+		{[]string{"testdata/withgdocduplicate"}, []string{"gdoc:mytut1", "gdoc:mytut2"}, false},
 		{[]string{"testdata/withignored"}, []string{"testdata/withignored/tut1.md"}, false},
 		{[]string{"testdata/flat", "testdata/withgdoc", "testdata/withignored"}, []string{"testdata/flat/tut1.md", "testdata/flat/tut2.md", "gdoc:mytut1", "gdoc:mytut2", "testdata/withignored/tut1.md"}, false},
 	}

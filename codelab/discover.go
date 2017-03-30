@@ -10,6 +10,7 @@ import (
 
 	"path"
 
+	"github.com/ubuntu/tutorial-deployment/internaltools"
 	"github.com/ubuntu/tutorial-deployment/paths"
 )
 
@@ -48,6 +49,7 @@ func Discover() (codelabs []string, err error) {
 			codelabs = append(codelabs, newCodelabs...)
 		}
 	}
+	codelabs = internaltools.UniqueStrings(codelabs)
 
 	return codelabs, nil
 }
