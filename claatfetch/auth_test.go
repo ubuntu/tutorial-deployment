@@ -22,22 +22,6 @@ import (
 	"testing"
 )
 
-func TestAuthTokenArg(t *testing.T) {
-	const token = "test-token"
-	*authToken = token
-	src, err := tokenSource("ignored")
-	if err != nil {
-		t.Fatal(err)
-	}
-	tok, err := src.Token()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if tok.AccessToken != token {
-		t.Errorf("tok.AccessToken = %q; want %q", tok.AccessToken, token)
-	}
-}
-
 func Test_driveClient(t *testing.T) {
 	tests := []struct {
 		name    string
