@@ -7,25 +7,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sync"
 )
-
-// P is used for the main Paths object
-type P struct {
-	Website        string
-	Export         string
-	MetaData       string
-	API            string
-	TutorialInputs []string
-
-	// are out paths export and api temporary? (prevent accidental deletion)
-	tempRootPath string
-}
-
-// Paths encapsulate global path properties of the project
-var Paths = P{
-	Export:   defaultRelativeExportPath,
-	MetaData: defaultRelativeMetadataPath,
-}
 
 const (
 	defaultRelativeExportPath   = "src/codelabs"
@@ -38,18 +21,48 @@ const (
 )
 
 func init() {
-	flag.StringVar(&Paths.Website, "w", "", "website root path directory where main index.html is located. Will "+
+	p := New()
+	flag.StringVar(&p.Website, "w", "", "website root path directory where main index.html is located. Will "+
 		"autodetect if current directory is within the website repository")
-	flag.StringVar(&Paths.Export, "e", defaultRelativeExportPath,
+	flag.StringVar(&p.Export, "e", defaultRelativeExportPath,
 		fmt.Sprintf("export path for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeExportPath))
-	flag.StringVar(&Paths.MetaData, "i", defaultRelativeMetadataPath,
+	flag.StringVar(&p.MetaData, "i", defaultRelativeMetadataPath,
 		fmt.Sprintf("import path for metadata as template and events definition. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
-	flag.StringVar(&Paths.API, "a", defaultRelativeAPIPath,
+	flag.StringVar(&p.API, "a", defaultRelativeAPIPath,
 		fmt.Sprintf("exported apis for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeAPIPath))
 }
 
+var (
+	// paths encapsulate global path properties of the project
+	paths   Path
+	onePath sync.Once
+)
+
+// Path is used for the main Paths object
+type Path struct {
+	Website        string
+	Export         string
+	MetaData       string
+	API            string
+	TutorialInputs []string
+
+	// are out paths export and api temporary? (prevent accidental deletion)
+	tempRootPath string
+}
+
+// New get access to the singleton path and create it if necessary (multi-threading safe)
+func New() *Path {
+	onePath.Do(func() {
+		paths = Path{
+			Export:   defaultRelativeExportPath,
+			MetaData: defaultRelativeMetadataPath,
+		}
+	})
+	return &paths
+}
+
 // ImportTutorialPaths sanitizes relative paths, adding default if none provided
-func (p *P) ImportTutorialPaths(tps []string) (err error) {
+func (p *Path) ImportTutorialPaths(tps []string) (err error) {
 	// default: tutorial and google doc reference path
 	if len(tps) == 0 {
 		tps = []string{path.Join(p.Website, defaultTutorialPath)}
@@ -67,7 +80,7 @@ func (p *P) ImportTutorialPaths(tps []string) (err error) {
 }
 
 // CreateTempOutPath generate some temporary paths for API and export
-func (p *P) CreateTempOutPath() error {
+func (p *Path) CreateTempOutPath() error {
 	tmp, err := ioutil.TempDir("", "serve-tutorial-")
 	if err != nil {
 		return fmt.Errorf("Couldn't create temp path: %s", err)
@@ -79,7 +92,7 @@ func (p *P) CreateTempOutPath() error {
 }
 
 // CleanTempPath removes all generated paths
-func (p *P) CleanTempPath() error {
+func (p *Path) CleanTempPath() error {
 	if p.tempRootPath == "" {
 		return fmt.Errorf("No path in %+v corresponding to temporary paths", p)
 	}
@@ -89,21 +102,21 @@ func (p *P) CleanTempPath() error {
 }
 
 // DetectPaths search for paths and load them accordingly to flags
-func DetectPaths() (err error) {
-	if Paths.Website == "" {
-		Paths.Website, err = detectWebsitePath()
+func (p *Path) DetectPaths() (err error) {
+	if p.Website == "" {
+		p.Website, err = detectWebsitePath()
 		if err != nil {
 			return err
 		}
 	}
 
-	if err = sanitizeRelPathToWebsite(&Paths.Export, defaultRelativeExportPath, Paths.Website); err != nil {
+	if err = sanitizeRelPathToWebsite(&p.Export, defaultRelativeExportPath, p.Website); err != nil {
 		return err
 	}
-	if err = sanitizeRelPathToWebsite(&Paths.MetaData, defaultRelativeMetadataPath, Paths.Website); err != nil {
+	if err = sanitizeRelPathToWebsite(&p.MetaData, defaultRelativeMetadataPath, p.Website); err != nil {
 		return err
 	}
-	if err = sanitizeRelPathToWebsite(&Paths.API, defaultRelativeAPIPath, Paths.Website); err != nil {
+	if err = sanitizeRelPathToWebsite(&p.API, defaultRelativeAPIPath, p.Website); err != nil {
 		return err
 	}
 	return nil

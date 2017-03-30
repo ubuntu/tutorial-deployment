@@ -31,7 +31,7 @@ func TestDetectPaths(t *testing.T) {
 		{"", "export/path", "alt/metadata", "alt/api", "testdata/partialwebsite", "", "", "", "", true},                         // Error due to no site detected
 		{"", "export/path", "alt/metadata", "alt/api", "testdata/website", "", "export/path", "alt/metadata", "alt/api", false}, // Defined path are always relative to cwd, not website
 		{"", "export/path", "alt/metadata", "alt/api", "testdata/website/subdir", "..", "export/path", "alt/metadata", "alt/api", false},
-		{"", Paths.Export, Paths.MetaData, Paths.API, "testdata/website", "", defaultRelativeExportPath, defaultRelativeMetadataPath, defaultRelativeAPIPath, false},
+		{"", paths.Export, paths.MetaData, paths.API, "testdata/website", "", defaultRelativeExportPath, defaultRelativeMetadataPath, defaultRelativeAPIPath, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("(website: %s), (export: %s), (metadata: %s), (api: %s) in [%s]",
@@ -45,7 +45,8 @@ func TestDetectPaths(t *testing.T) {
 			tc.wantAPIPath = absPath(t, tc.apiPath)
 
 			// Test
-			err := DetectPaths()
+			p := New()
+			err := p.DetectPaths()
 
 			// Error checking
 			if err != nil && !tc.errExpected {
@@ -61,17 +62,17 @@ func TestDetectPaths(t *testing.T) {
 			}
 
 			// Paths checks
-			if Paths.Website != tc.wantWebsitePath {
-				t.Errorf("Website: got %s; want %s", Paths.Website, tc.wantWebsitePath)
+			if p.Website != tc.wantWebsitePath {
+				t.Errorf("Website: got %s; want %s", p.Website, tc.wantWebsitePath)
 			}
-			if Paths.Export != tc.wantExportPath {
-				t.Errorf("Export: got %s; want %s", Paths.Export, tc.wantExportPath)
+			if p.Export != tc.wantExportPath {
+				t.Errorf("Export: got %s; want %s", p.Export, tc.wantExportPath)
 			}
-			if Paths.MetaData != tc.wantMetaDataPath {
-				t.Errorf("Metadata: got %s; want %s", Paths.MetaData, tc.wantMetaDataPath)
+			if p.MetaData != tc.wantMetaDataPath {
+				t.Errorf("Metadata: got %s; want %s", p.MetaData, tc.wantMetaDataPath)
 			}
-			if Paths.API != tc.wantAPIPath {
-				t.Errorf("API: got %s; want %s", Paths.API, tc.wantAPIPath)
+			if p.API != tc.wantAPIPath {
+				t.Errorf("API: got %s; want %s", p.API, tc.wantAPIPath)
 			}
 		})
 	}
@@ -91,7 +92,7 @@ func TestImportTutorialPaths(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("path argument: %+v", tc.paths), func(t *testing.T) {
 			// Setup/Teardown
-			p := P{
+			p := Path{
 				Website: website,
 			}
 			for i, expected := range tc.expectedPaths {
@@ -112,7 +113,7 @@ func TestImportTutorialPaths(t *testing.T) {
 }
 
 func TestCreateTempPathHandling(t *testing.T) {
-	p := P{}
+	p := Path{}
 
 	// Create temp dir
 	if err := p.CreateTempOutPath(); err != nil {
@@ -146,7 +147,7 @@ func TestCreateTempPathHandling(t *testing.T) {
 }
 
 func TestTryCleanNonTempDir(t *testing.T) {
-	p := P{}
+	p := Path{}
 
 	if err := p.CleanTempPath(); err == nil {
 		t.Errorf("Cleaning a non temporary path object should have returned an error: %+v", p)
@@ -180,8 +181,8 @@ func absPath(t *testing.T, path string) string {
 }
 
 func changePathObject(w, e, m, a string) func() {
-	oldPath := Paths
-	Paths = P{
+	oldPath := paths
+	paths = Path{
 		Website:  w,
 		Export:   e,
 		MetaData: m,
@@ -189,6 +190,6 @@ func changePathObject(w, e, m, a string) func() {
 	}
 
 	return func() {
-		Paths = oldPath
+		paths = oldPath
 	}
 }
