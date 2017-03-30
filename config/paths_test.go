@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -107,6 +108,48 @@ func TestImportTutorialPaths(t *testing.T) {
 				t.Errorf("Import path: got %+v; want %+v", p.TutorialInputs, tc.expectedPaths)
 			}
 		})
+	}
+}
+
+func TestCreateTempPathHandling(t *testing.T) {
+	p := P{}
+
+	// Create temp dir
+	if err := p.CreateTempOutPath(); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if p.API == "" || p.Export == "" {
+		t.Errorf("one of API (%s) or Export (%s) is empty", p.API, p.Export)
+		return
+	}
+	tmpdir := p.API[:len(p.API)-len(defaultRelativeAPIPath)]
+	if !strings.HasPrefix(p.Export, tmpdir) {
+		t.Errorf("API (%s) and Export (%s) don't have the same temporary prefix", p.API, p.Export)
+	}
+	if _, err := os.Stat(tmpdir); os.IsNotExist(err) {
+		t.Errorf("%s doesn't exists", tmpdir)
+		return
+	}
+
+	// Remove temp dir
+	if err := p.CleanTempPath(); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if _, err := os.Stat(tmpdir); err == nil {
+		t.Errorf("%s still exists", tmpdir)
+	}
+	if p.API != "" || p.Export != "" {
+		t.Errorf("API (%s) and Export (%s) should now be empty", p.API, p.Export)
+	}
+}
+
+func TestTryCleanNonTempDir(t *testing.T) {
+	p := P{}
+
+	if err := p.CleanTempPath(); err == nil {
+		t.Errorf("Cleaning a non temporary path object should have returned an error: %+v", p)
 	}
 }
 

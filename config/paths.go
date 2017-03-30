@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -15,6 +16,9 @@ type P struct {
 	MetaData       string
 	API            string
 	TutorialInputs []string
+
+	// are out paths export and api temporary? (prevent accidental deletion)
+	tempRootPath string
 }
 
 // Paths encapsulate global path properties of the project
@@ -60,6 +64,28 @@ func (p *P) ImportTutorialPaths(tps []string) (err error) {
 	}
 	p.TutorialInputs = tps
 	return nil
+}
+
+// CreateTempOutPath generate some temporary paths for API and export
+func (p *P) CreateTempOutPath() error {
+	tmp, err := ioutil.TempDir("", "serve-tutorial-")
+	if err != nil {
+		return fmt.Errorf("Couldn't create temp path: %s", err)
+	}
+	p.tempRootPath = tmp
+	p.API = path.Join(tmp, defaultRelativeAPIPath)
+	p.Export = path.Join(tmp, defaultRelativeExportPath)
+	return nil
+}
+
+// CleanTempPath removes all generated paths
+func (p *P) CleanTempPath() error {
+	if p.tempRootPath == "" {
+		return fmt.Errorf("No path in %+v corresponding to temporary paths", p)
+	}
+	p.API = ""
+	p.Export = ""
+	return os.RemoveAll(p.tempRootPath)
 }
 
 // DetectPaths search for paths and load them accordingly to flags
