@@ -49,8 +49,11 @@ func TestFetchRemote(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer res.body.Close()
-	b, _ := ioutil.ReadAll(res.body)
+	defer res.Body.Close()
+	if res.Type != typeMarkdown {
+		t.Errorf("typ = %q; want %q", res.Type, typeMarkdown)
+	}
+	b, _ := ioutil.ReadAll(res.Body)
 	if s := string(b); s != "test" {
 		t.Errorf("res = %q; want 'test'", s)
 	}
@@ -82,8 +85,11 @@ func TestFetchRemoteDrive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer res.body.Close()
-	b, _ := ioutil.ReadAll(res.body)
+	defer res.Body.Close()
+	if res.Type != typeGdoc {
+		t.Errorf("typ = %q; want %q", res.Type, typeGdoc)
+	}
+	b, _ := ioutil.ReadAll(res.Body)
 	if s := string(b); s != "test" {
 		t.Errorf("res = %q; want 'test'", s)
 	}

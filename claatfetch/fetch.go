@@ -32,11 +32,18 @@ import (
 	"github.com/ubuntu/tutorial-deployment/consts"
 )
 
+const (
+	// supported codelab source types must be registered parsers
+	typeGdoc     = "gdoc" // Google Docs doc
+	typeMarkdown = "md"   // Markdown text
+)
+
 // Resource is a codelab Resource, loaded from local file
 // or fetched from remote location.
 type Resource struct {
-	body io.ReadCloser // resource body
-	mod  time.Time     // last update of content
+	Body io.ReadCloser // resource body
+	Mod  time.Time     // last update of content
+	Type string        // Either gdoc or md
 }
 
 // driveAPI is a base URL for Drive API
@@ -55,8 +62,9 @@ func Fetch(name string) (*Resource, error) {
 		return nil, err
 	}
 	return &Resource{
-		body: r,
-		mod:  fi.ModTime(),
+		Body: r,
+		Mod:  fi.ModTime(),
+		Type: typeMarkdown,
 	}, nil
 }
 
@@ -91,8 +99,9 @@ func fetchRemoteFile(url string) (*Resource, error) {
 		t = time.Now()
 	}
 	return &Resource{
-		body: res.Body,
-		mod:  t,
+		Body: res.Body,
+		Mod:  t,
+		Type: typeMarkdown,
 	}, nil
 }
 
@@ -114,7 +123,7 @@ func fetchDriveFile(id string, nometa bool) (*Resource, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &Resource{body: res.Body}, nil
+		return &Resource{Body: res.Body, Type: typeGdoc}, nil
 	}
 
 	u := fmt.Sprintf("%s/files/%s?fields=id,mimeType,modifiedTime", driveAPI, id)
@@ -139,8 +148,9 @@ func fetchDriveFile(id string, nometa bool) (*Resource, error) {
 		return nil, err
 	}
 	return &Resource{
-		body: res.Body,
-		mod:  meta.Modified,
+		Body: res.Body,
+		Mod:  meta.Modified,
+		Type: typeGdoc,
 	}, nil
 }
 
