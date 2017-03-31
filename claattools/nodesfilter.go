@@ -14,7 +14,7 @@
 
 // Some filters imported and renamed from https://github.com/googlecodelabs/tools/blob/master/export.go
 
-package claatfetch
+package claattools
 
 import "github.com/didrocks/codelab-ubuntu-tools/claat/types"
 

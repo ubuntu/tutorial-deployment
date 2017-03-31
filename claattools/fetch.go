@@ -14,7 +14,7 @@
 
 // Most of this file is heavily inspired from https://github.com/googlecodelabs/tools/blob/master/claat/fetch.go
 
-package claatfetch
+package claattools
 
 import (
 	"encoding/json"

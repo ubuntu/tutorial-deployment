@@ -14,7 +14,7 @@
 
 // This file is slightly modified from https://github.com/googlecodelabs/tools/blob/master/claat/auth.go
 
-package claatfetch
+package claattools
 
 import (
 	"net/http"

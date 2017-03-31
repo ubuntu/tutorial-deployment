@@ -14,7 +14,7 @@
 
 // Most of this file is heavily inspired from https://github.com/googlecodelabs/tools/blob/master/claat/fetch_test.go
 
-package claatfetch
+package claattools
 
 import (
 	"io/ioutil"
