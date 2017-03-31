@@ -177,7 +177,7 @@ func tokenLocation(provider string) (string, error) {
 	if d == "" {
 		log.Printf("WARNING: unable to identify user home dir")
 	}
-	d = path.Join(d, ".config", "claat")
+	d = path.Join(d, ".config", "ubuntu-tutorials")
 	if err := os.MkdirAll(d, 0700); err != nil {
 		return "", err
 	}
