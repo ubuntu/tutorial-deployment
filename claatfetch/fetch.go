@@ -32,9 +32,9 @@ import (
 	"github.com/ubuntu/tutorial-deployment/consts"
 )
 
-// resource is a codelab resource, loaded from local file
+// Resource is a codelab Resource, loaded from local file
 // or fetched from remote location.
-type resource struct {
+type Resource struct {
 	body io.ReadCloser // resource body
 	mod  time.Time     // last update of content
 }
@@ -45,7 +45,7 @@ const driveAPI = "https://www.googleapis.com/drive/v3"
 // Fetch retrieves codelab doc either from local disk
 // or a remote location.
 // The caller is responsible for closing returned stream.
-func Fetch(name string) (*resource, error) {
+func Fetch(name string) (*Resource, error) {
 	fi, err := os.Stat(name)
 	if os.IsNotExist(err) {
 		return fetchRemote(name, false)
@@ -54,7 +54,7 @@ func Fetch(name string) (*resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &resource{
+	return &Resource{
 		body: r,
 		mod:  fi.ModTime(),
 	}, nil
@@ -62,13 +62,13 @@ func Fetch(name string) (*resource, error) {
 
 // fetchRemote retrieves resource r from the network.
 //
-// If urlStr is not a URL and prepending by gdoc: i.e. does not have the host part, it is considered to be
+// If urlStr is not a URL, i.e. does not have the host part and is prepended by gdoc:, it is considered to be
 // a Google Doc ID and fetched accordingly. Otherwise, a simple GET request
 // is used to retrieve the contents.
 //
 // The caller is responsible for closing returned stream.
-// If nometa is true, resource.mod may have zero value.
-func fetchRemote(urlStr string, nometa bool) (*resource, error) {
+// If nometa is true, Resource.mod may have zero value.
+func fetchRemote(urlStr string, nometa bool) (*Resource, error) {
 	u, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func fetchRemote(urlStr string, nometa bool) (*resource, error) {
 
 // fetchRemoteFile retrieves codelab resource from url.
 // It is a special case of fetchRemote function.
-func fetchRemoteFile(url string) (*resource, error) {
+func fetchRemoteFile(url string) (*Resource, error) {
 	res, err := retryGet(nil, url, 3)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func fetchRemoteFile(url string) (*resource, error) {
 	if err != nil {
 		t = time.Now()
 	}
-	return &resource{
+	return &Resource{
 		body: res.Body,
 		mod:  t,
 	}, nil
@@ -101,7 +101,7 @@ func fetchRemoteFile(url string) (*resource, error) {
 // for more details.
 //
 // If nometa is true, resource.mod will have zero value.
-func fetchDriveFile(id string, nometa bool) (*resource, error) {
+func fetchDriveFile(id string, nometa bool) (*Resource, error) {
 	id = gdocID(id)
 	exportURL := gdocExportURL(id)
 	client, err := driveClient()
@@ -114,7 +114,7 @@ func fetchDriveFile(id string, nometa bool) (*resource, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &resource{body: res.Body}, nil
+		return &Resource{body: res.Body}, nil
 	}
 
 	u := fmt.Sprintf("%s/files/%s?fields=id,mimeType,modifiedTime", driveAPI, id)
@@ -138,7 +138,7 @@ func fetchDriveFile(id string, nometa bool) (*resource, error) {
 	if res, err = retryGet(client, exportURL, 7); err != nil {
 		return nil, err
 	}
-	return &resource{
+	return &Resource{
 		body: res.Body,
 		mod:  meta.Modified,
 	}, nil
