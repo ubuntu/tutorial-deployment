@@ -1,6 +1,10 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 go test -v ./... | tee tests.log
+returncode="${PIPESTATUS[0]}"
 
 NUMTESTS=`grep RUN tests.log | wc -l`
 echo "RAN $NUMTESTS tests"
+
+[ $returncode -ne 0 ] && echo "Some tests FAILED"
+exit $returncode
