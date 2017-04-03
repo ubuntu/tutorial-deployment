@@ -26,7 +26,7 @@ func init() {
 		"autodetect if current directory is within the website repository")
 	flag.StringVar(&p.Export, "e", defaultRelativeExportPath,
 		fmt.Sprintf("export path for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeExportPath))
-	flag.StringVar(&p.MetaData, "i", defaultRelativeMetadataPath,
+	flag.StringVar(&p.MetaData, "m", defaultRelativeMetadataPath,
 		fmt.Sprintf("import path for metadata as template and events definition. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
 	flag.StringVar(&p.API, "a", defaultRelativeAPIPath,
 		fmt.Sprintf("exported apis for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeAPIPath))
