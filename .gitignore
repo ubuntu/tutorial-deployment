@@ -1,0 +1,4 @@
+# Add commands manually
+cmd/
+
+tests.log
