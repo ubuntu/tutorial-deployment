@@ -97,7 +97,7 @@ func tokenSource(provider string) (oauth2.TokenSource, error) {
 		t, err = authorize(conf)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("unable to obtain access token for %q", provider)
+		return nil, fmt.Errorf("unable to obtain access token for %q: %v", provider, err)
 	}
 	cache := &cachedTokenSource{
 		src:      conf.TokenSource(context.Background(), t),
@@ -110,11 +110,12 @@ func tokenSource(provider string) (oauth2.TokenSource, error) {
 // authorize performs user aufthorization flow, asking for permissions grant.
 func authorize(conf *oauth2.Config) (*oauth2.Token, error) {
 	aurl := conf.AuthCodeURL("unused", oauth2.AccessTypeOffline)
-	fmt.Printf("Authorize me at following URL, please:\n\n%s\n\nCode: ", aurl)
+	fmt.Printf("Authorize me at following URL, please:\n%s\n\nCode: ", aurl)
 	var code string
 	if _, err := fmt.Scan(&code); err != nil {
 		return nil, err
 	}
+	fmt.Printf("Could scan &code: %s\n", code)
 	return conf.Exchange(context.Background(), code)
 }
 
