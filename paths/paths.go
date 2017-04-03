@@ -150,7 +150,7 @@ RootDirsLoop:
 	}
 	// Root can't be website directory
 	if dir == "/" {
-		return "", fmt.Errorf("Couldn't detect website directory from and in parent directories: %s", initdir)
+		return "", fmt.Errorf("no website directory from and in parent directories of %s", initdir)
 	}
 	dir, err = filepath.Abs(dir)
 	if err != nil {
