@@ -36,8 +36,8 @@ const (
 	scopeDriveReadOnly = "https://www.googleapis.com/auth/drive.readonly"
 
 	// program credentials for installed apps
-	googClient = "183908478743-e8rth9fbo7juk9eeivgp23asnt791g63.apps.googleusercontent.com"
-	googSecret = "ljELuf5jUrzcOxZGL7OQfkIC"
+	clientID     = "127933949931-6nqaiolr3h81makh1qc0p3pbm5h9dt0k.apps.googleusercontent.com"
+	clientSecret = "127pgIdUPUDhmSKohkHgkFCs"
 
 	// token providers
 	providerGoogle = "goog"
@@ -47,8 +47,8 @@ var (
 	// OAuth2 configs for OOB flow
 	authConfig = map[string]*oauth2.Config{
 		providerGoogle: {
-			ClientID:     googClient,
-			ClientSecret: googSecret,
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
 			Endpoint:     google.Endpoint,
 			Scopes:       []string{scopeDriveReadOnly},
 			RedirectURL:  "urn:ietf:wg:oauth:2.0:oob",
