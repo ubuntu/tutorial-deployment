@@ -26,11 +26,12 @@ func TestDetectPaths(t *testing.T) {
 	}{
 		{"/defined/website", "/other/export", "/metadata", "/api", "", "/defined/website", "/other/export", "/metadata", "/api", false},
 		{"/defined/website", "export/path", "alt/metadata", "alt/api", "", "/defined/website", "export/path", "alt/metadata", "alt/api", false},
-		{"", "export/path", "alt/metadata", "alt/api", "testdata/nosite", "", "", "", "", true},                                 // Error due to no site detected
-		{"", "export/path", "alt/metadata", "alt/api", "testdata/partialwebsite", "", "", "", "", true},                         // Error due to no site detected
-		{"", "export/path", "alt/metadata", "alt/api", "testdata/website", "", "export/path", "alt/metadata", "alt/api", false}, // Defined path are always relative to cwd, not website
-		{"", "export/path", "alt/metadata", "alt/api", "testdata/website/subdir", "..", "export/path", "alt/metadata", "alt/api", false},
-		{"", paths.Export, paths.MetaData, paths.API, "testdata/website", "", defaultRelativeExportPath, defaultRelativeMetadataPath, defaultRelativeAPIPath, false},
+		{"", "export/path", "alt/metadata", "alt/api", "", "", "export/path", "alt/metadata", "alt/api", false},                                             // The 3 parameters are sufficient to avoid needing website root detection
+		{"", paths.Export, "alt/metadata", "alt/api", "testdata/nosite", "", "", "", "", true},                                                              // Error due to no site detected
+		{"", paths.Export, "alt/metadata", "alt/api", "testdata/partialwebsite", "", "", "", "", true},                                                      // Error due to no site detected
+		{"", paths.Export, "alt/metadata", "alt/api", "testdata/website", ".", defaultRelativeExportPath, "alt/metadata", "alt/api", false},                 // Defined path are always relative to cwd, not website
+		{"", paths.Export, "alt/metadata", "alt/api", "testdata/website/subdir", "..", "../" + defaultRelativeExportPath, "alt/metadata", "alt/api", false}, // Subdir path detection
+		{"", paths.Export, paths.MetaData, paths.API, "testdata/website", ".", defaultRelativeExportPath, defaultRelativeMetadataPath, defaultRelativeAPIPath, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("(website: %s), (export: %s), (metadata: %s), (api: %s) in [%s]",
@@ -38,7 +39,9 @@ func TestDetectPaths(t *testing.T) {
 			// Setup/Teardown
 			defer chdir(t, tc.cwd)()
 			defer changePathObject(tc.websitePath, tc.exportPath, tc.metadataPath, tc.apiPath)()
-			tc.wantWebsitePath = absPath(t, tc.wantWebsitePath)
+			if tc.wantWebsitePath != "" {
+				tc.wantWebsitePath = absPath(t, tc.wantWebsitePath)
+			}
 			tc.wantExportPath = absPath(t, tc.wantExportPath)
 			tc.wantMetaDataPath = absPath(t, tc.wantMetaDataPath)
 			tc.wantAPIPath = absPath(t, tc.apiPath)

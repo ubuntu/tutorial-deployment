@@ -104,7 +104,9 @@ func (p *Path) CleanTempPath() error {
 // DetectPaths search for paths and load them accordingly to flags
 // this needs to be called after parsing the CLI args.
 func (p *Path) DetectPaths() (err error) {
-	if p.Website == "" {
+	// We only need Website if one of the values aren't defined
+	if p.Website == "" &&
+		(p.Export == defaultRelativeExportPath || p.MetaData == defaultRelativeMetadataPath || p.API == defaultRelativeAPIPath) {
 		p.Website, err = detectWebsitePath()
 		if err != nil {
 			return err
