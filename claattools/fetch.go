@@ -55,7 +55,7 @@ const driveAPI = "https://www.googleapis.com/drive/v3"
 func Fetch(name string) (*Resource, error) {
 	fi, err := os.Stat(name)
 	if os.IsNotExist(err) {
-		return fetchRemote(name, false)
+		return FetchRemote(name, false)
 	}
 	r, err := os.Open(name)
 	if err != nil {
@@ -68,7 +68,7 @@ func Fetch(name string) (*Resource, error) {
 	}, nil
 }
 
-// fetchRemote retrieves resource r from the network.
+// FetchRemote retrieves resource r from the network.
 //
 // If urlStr is not a URL, i.e. does not have the host part and is prepended by gdoc:, it is considered to be
 // a Google Doc ID and fetched accordingly. Otherwise, a simple GET request
@@ -76,7 +76,7 @@ func Fetch(name string) (*Resource, error) {
 //
 // The caller is responsible for closing returned stream.
 // If nometa is true, Resource.mod may have zero value.
-func fetchRemote(urlStr string, nometa bool) (*Resource, error) {
+func FetchRemote(urlStr string, nometa bool) (*Resource, error) {
 	u, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -105,6 +105,16 @@ func fetchRemoteFile(url string) (*Resource, error) {
 	}, nil
 }
 
+// FetchRemoteBytes get bytes from a remote entity, including drive ID
+func FetchRemoteBytes(client *http.Client, url string, n int) ([]byte, error) {
+	res, err := retryGet(client, url, n)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	return ioutil.ReadAll(res.Body)
+}
+
 // fetchDriveFile uses Drive API to retrieve HTML representation of a Google Doc.
 // See https://developers.google.com/drive/web/manage-downloads#downloading_google_documents
 // for more details.
@@ -113,7 +123,7 @@ func fetchRemoteFile(url string) (*Resource, error) {
 func fetchDriveFile(id string, nometa bool) (*Resource, error) {
 	id = gdocID(id)
 	exportURL := gdocExportURL(id)
-	client, err := driveClient()
+	client, err := DriveClient()
 	if err != nil {
 		return nil, err
 	}

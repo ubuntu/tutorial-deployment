@@ -32,7 +32,7 @@ func Test_driveClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := driveClient()
+			got, err := DriveClient()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("driveClient() error = %v, wantErr %v", err, tt.wantErr)
 				return

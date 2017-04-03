@@ -64,9 +64,9 @@ func init() {
 	clients = make(map[string]*http.Client)
 }
 
-// driveClient returns an HTTP client which knows how to perform authenticated
+// DriveClient returns an HTTP client which knows how to perform authenticated
 // requests to Google Drive API.
-func driveClient() (*http.Client, error) {
+func DriveClient() (*http.Client, error) {
 	clientsMu.Lock()
 	defer clientsMu.Unlock()
 	if hc, ok := clients[providerGoogle]; ok {
