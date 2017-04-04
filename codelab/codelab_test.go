@@ -34,7 +34,7 @@ func TestGenerateCodelabs(t *testing.T) {
 		{"testdata/codelabsrc/markdown-with-images-simple.md", false, nil, nil, false},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("generate %s", tc.src), func(t *testing.T) {
+		t.Run(fmt.Sprintf("generate %s, watch: %v", tc.src, tc.watch), func(t *testing.T) {
 			out, teardown := tempDir(t)
 			defer teardown()
 
@@ -55,7 +55,7 @@ func TestGenerateCodelabs(t *testing.T) {
 			c, err := New(tc.src, out, template, tc.watch)
 
 			if err != nil && *update {
-				t.Fatalf("Couldn't update %s: An error occurend: %v", tc.src, err)
+				t.Fatalf("Couldn't update %s: An error occured: %v", tc.src, err)
 			}
 
 			if (err != nil) != tc.wantErr {
