@@ -84,6 +84,10 @@ func FetchRemote(urlStr string, nometa bool) (*Resource, error) {
 	if (u.Host == "" && strings.HasPrefix(urlStr, consts.GdocPrefix)) || u.Host == "docs.google.com" {
 		return fetchDriveFile(strings.TrimPrefix(urlStr, consts.GdocPrefix), nometa)
 	}
+	// If there is still no host, not a gdoc neither a local existing path, fail immediately
+	if u.Host == "" {
+		return nil, fmt.Errorf("%s doesn't exist", urlStr)
+	}
 	return fetchRemoteFile(urlStr)
 }
 
