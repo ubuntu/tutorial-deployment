@@ -33,6 +33,7 @@ func TestGenerateCodelabs(t *testing.T) {
 		wantFilesWatched []string
 		wantErr          bool
 	}{
+		{"/doesnt/exist", false, nil, true},
 		{"testdata/codelabsrc/markdown-no-image.md", false, nil, false},
 		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-no-image.md"}, false},
 	}
@@ -60,6 +61,10 @@ func TestGenerateCodelabs(t *testing.T) {
 
 			if (err != nil) != tc.wantErr {
 				t.Errorf("New() error = %v, wantErr %v", err, tc.wantErr)
+				return
+			}
+			// we can't continue once we get an error: c isn't valid
+			if err != nil {
 				return
 			}
 
