@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -32,12 +33,15 @@ func TestGenerateCodelabs(t *testing.T) {
 		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-no-image.md"}, nil, false},
 		{"testdata/codelabsrc/markdown-invalid-generated-html.md", false, nil, []string{"example-snap-tutorial/index.inc"}, false},
 		{"testdata/codelabsrc/markdown-with-images-simple.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-with-images-simple.md", true, []string{"testdata/codelabsrc/markdown-with-images-simple.md", "testdata/codelabsrc/foo.png"}, nil, false},
 		{"testdata/codelabsrc/markdown-with-images-online.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-with-images-online.md", true, []string{"testdata/codelabsrc/markdown-with-images-online.md"}, nil, false}, // online images aren't tracked
 		{"testdata/codelabsrc/markdown-with-images-relative-upper-path.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-with-images-duplicate-images.md", false, nil, nil, false}, // duplicated images have only one image
 		{"testdata/codelabsrc/markdown-with-images-extension-preserved.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-with-images-online-jpg.md", false, nil, nil, false}, // it downloads the remote file in png
 		{"testdata/codelabsrc/markdown-with-images.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-with-images.md", true, []string{"testdata/codelabsrc/markdown-with-images.md", "testdata/codelabsrc/baz.jpg", "testdata/codelabsrc/foo.png", "testdata/bar.png"}, nil, false}, // watch local images only
 		{"testdata/codelabsrc/markdown-missing-image.md", false, nil, nil, true},
 	}
 	for _, tc := range testCases {
@@ -76,6 +80,8 @@ func TestGenerateCodelabs(t *testing.T) {
 
 			compareAll(t, destcompare, out, tc.wantDiffFiles)
 
+			sort.Strings(c.FilesWatched)
+			sort.Strings(tc.wantFilesWatched)
 			if !reflect.DeepEqual(c.FilesWatched, tc.wantFilesWatched) {
 				t.Errorf("got %+v; want %+v", c.FilesWatched, tc.wantFilesWatched)
 			}
