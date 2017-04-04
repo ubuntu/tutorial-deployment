@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -29,9 +30,11 @@ func TestGenerateCodelabs(t *testing.T) {
 		src   string
 		watch bool
 
-		wantErr bool
+		wantFilesWatched []string
+		wantErr          bool
 	}{
-		{"testdata/codelabsrc/markdown-no-image.md", false, false},
+		{"testdata/codelabsrc/markdown-no-image.md", false, nil, false},
+		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-no-image.md"}, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate %s", tc.src), func(t *testing.T) {
@@ -49,7 +52,7 @@ func TestGenerateCodelabs(t *testing.T) {
 				out = destcompare
 			}
 
-			_, err := New(tc.src, out, template, tc.watch)
+			c, err := New(tc.src, out, template, tc.watch)
 
 			if err != nil && *update {
 				t.Fatalf("Couldn't update %s: An error occurend: %v", tc.src, err)
@@ -61,6 +64,10 @@ func TestGenerateCodelabs(t *testing.T) {
 			}
 
 			compareAll(t, destcompare, out)
+
+			if !reflect.DeepEqual(c.FilesWatched, tc.wantFilesWatched) {
+				t.Errorf("got %+v; want %+v", c.FilesWatched, tc.wantFilesWatched)
+			}
 		})
 	}
 }
