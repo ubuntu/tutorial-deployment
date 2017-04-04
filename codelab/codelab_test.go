@@ -30,6 +30,7 @@ func TestGenerateCodelabs(t *testing.T) {
 		{"/doesnt/exist", false, nil, nil, true},
 		{"testdata/codelabsrc/markdown-no-image.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-no-image.md"}, nil, false},
+		{"testdata/codelabsrc/markdown-invalid-generated-html.md", false, nil, []string{"example-snap-tutorial/index.inc"}, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate %s", tc.src), func(t *testing.T) {
