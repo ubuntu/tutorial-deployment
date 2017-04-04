@@ -31,11 +31,12 @@ func TestGenerateCodelabs(t *testing.T) {
 		watch bool
 
 		wantFilesWatched []string
+		wantDiffFiles    []string
 		wantErr          bool
 	}{
-		{"/doesnt/exist", false, nil, true},
-		{"testdata/codelabsrc/markdown-no-image.md", false, nil, false},
-		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-no-image.md"}, false},
+		{"/doesnt/exist", false, nil, nil, true},
+		{"testdata/codelabsrc/markdown-no-image.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-no-image.md"}, nil, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate %s", tc.src), func(t *testing.T) {
@@ -46,8 +47,8 @@ func TestGenerateCodelabs(t *testing.T) {
 
 			// On update, override destcompare
 			if *update {
-				// Skip the ones where we want an error to happen
-				if tc.wantErr {
+				// Skip the ones where we want an error to happen or where content isn't identical
+				if tc.wantErr || tc.wantDiffFiles != nil {
 					return
 				}
 				out = destcompare
@@ -68,7 +69,7 @@ func TestGenerateCodelabs(t *testing.T) {
 				return
 			}
 
-			compareAll(t, destcompare, out)
+			compareAll(t, destcompare, out, tc.wantDiffFiles)
 
 			if !reflect.DeepEqual(c.FilesWatched, tc.wantFilesWatched) {
 				t.Errorf("got %+v; want %+v", c.FilesWatched, tc.wantFilesWatched)
@@ -90,14 +91,15 @@ func tempDir(t *testing.T) (string, func()) {
 }
 
 // compare recursively all original and generated file content
-func compareAll(t *testing.T, original, generated string) {
+func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 	if err := filepath.Walk(original, func(f string, fi os.FileInfo, err error) error {
 		relp := strings.TrimPrefix(f, original)
 		// root path
 		if relp == "" {
 			return nil
 		}
-		p := path.Join(generated, relp[1:])
+		relp = relp[1:]
+		p := path.Join(generated, relp)
 
 		if fi.IsDir() {
 			// we just test existing and go to next
@@ -119,11 +121,23 @@ func compareAll(t *testing.T, original, generated string) {
 		if err != nil {
 			t.Fatalf("Couldn't read %s: %v", p, err)
 		}
-		if !bytes.Equal(actual, wanted) {
-			t.Errorf("%s and %s content differs", p, f)
+		if !bytes.Equal(actual, wanted) && !contains(ignoresf, relp) {
+			t.Errorf("%s and %s content differs:\nACTUAL:\n%s\n\nWANTED:\n%s", p, f, actual, wanted)
+		}
+		if bytes.Equal(actual, wanted) && contains(ignoresf, relp) {
+			t.Errorf("We wanted %s and %s to differ and they don't", p, f)
 		}
 		return nil
 	}); err != nil {
 		t.Fatalf("err: %s", err)
 	}
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
