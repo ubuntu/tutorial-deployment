@@ -1,0 +1,23 @@
+{
+  "id": "basic-snap-usage",
+  "duration": 10,
+  "title": "Basic snap usage",
+  "summary": "In this tutorial, we are going to cover the very basic on how to use snaps on your distributions, and the main benefits from them.",
+  "theme": "snap",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "snap"
+  ],
+  "tags": [
+    "beginner",
+    "idf-2016",
+    "snap",
+    "usage"
+  ],
+  "feedback": "https://github.com/ubuntu/codelabs/issues",
+  "difficulty": 1,
+  "url": "basic-snap-usage",
+  "updated": "2017-04-04T17:16:30Z"
+}
