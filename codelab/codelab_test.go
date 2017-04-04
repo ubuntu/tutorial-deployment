@@ -33,6 +33,11 @@ func TestGenerateCodelabs(t *testing.T) {
 		{"testdata/codelabsrc/markdown-invalid-generated-html.md", false, nil, []string{"example-snap-tutorial/index.inc"}, false},
 		{"testdata/codelabsrc/markdown-with-images-simple.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-with-images-online.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-with-images-relative-upper-path.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-with-images-duplicate-images.md", false, nil, nil, false}, // duplicated images have only one image
+		{"testdata/codelabsrc/markdown-with-images-extension-preserved.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-with-images-online-jpg.md", false, nil, nil, false}, // it downloads the remote file in png
+		{"testdata/codelabsrc/markdown-with-images.md", false, nil, nil, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate %s, watch: %v", tc.src, tc.watch), func(t *testing.T) {
