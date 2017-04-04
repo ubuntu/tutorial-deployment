@@ -1,0 +1,22 @@
+{
+  "id": "example-snap-tutorial",
+  "duration": 6,
+  "title": "Example snap tutorial",
+  "summary": "This tutorial is going to cover a very very interesting topic, but the summary have to stay under 26 words",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "snapcraft"
+  ],
+  "tags": [
+    "interfaces",
+    "content-interfaces",
+    "up-to-four"
+  ],
+  "feedback": "http://Link",
+  "difficulty": 2,
+  "url": "example-snap-tutorial",
+  "updated": "2017-04-04T15:32:36+02:00"
+}
