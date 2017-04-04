@@ -16,15 +16,8 @@ import (
 var update = flag.Bool("update", false, "update generated files")
 
 func TestGenerateCodelabs(t *testing.T) {
-
 	var template = "testdata/template.html"
 	var generatedpath = "testdata/codelabgenerated"
-
-	if *update {
-		if err := os.RemoveAll(generatedpath); err != nil {
-			t.Fatalf("err: %v", generatedpath)
-		}
-	}
 
 	testCases := []struct {
 		src   string
@@ -52,6 +45,9 @@ func TestGenerateCodelabs(t *testing.T) {
 					return
 				}
 				out = destcompare
+				if err := os.RemoveAll(out); err != nil {
+					t.Fatalf("err: %v", err)
+				}
 			}
 
 			c, err := New(tc.src, out, template, tc.watch)
