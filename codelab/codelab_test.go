@@ -98,15 +98,16 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 		relp = relp[1:]
 		p := path.Join(generated, relp)
 
+		fo, err := os.Stat(p)
+		if err != nil {
+			t.Fatalf("%s doesn't exist while %s does", p, f)
+		}
+
 		if fi.IsDir() {
-			// we just test existing and go to next
-			fi, err := os.Stat(p)
-			if err != nil {
-				t.Fatalf("%s is a directory and %s doesn't exist", f, p)
-			}
-			if !fi.IsDir() {
+			if !fo.IsDir() {
 				t.Fatalf("%s is a directory and %s isn't", f, p)
 			}
+			// else, it's a directory as well and we are done.
 			return nil
 		}
 
@@ -128,6 +129,25 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 	}); err != nil {
 		t.Fatalf("err: %s", err)
 	}
+
+	// on the other side, check that all generated items are in origin
+	if err := filepath.Walk(generated, func(f string, _ os.FileInfo, err error) error {
+		relp := strings.TrimPrefix(f, generated)
+		// root path
+		if relp == "" {
+			return nil
+		}
+		relp = relp[1:]
+		p := path.Join(original, relp)
+
+		if _, err := os.Stat(p); err != nil {
+			t.Fatalf("%s doesn't exist while %s does", p, f)
+		}
+		return nil
+	}); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
 }
 
 func contains(s []string, e string) bool {
