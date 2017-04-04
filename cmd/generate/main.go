@@ -11,10 +11,6 @@ import (
 	"github.com/ubuntu/tutorial-deployment/consts"
 	"github.com/ubuntu/tutorial-deployment/internaltools"
 	"github.com/ubuntu/tutorial-deployment/paths"
-
-	// allow parsers to register themselves
-	_ "github.com/didrocks/codelab-ubuntu-tools/claat/parser/gdoc"
-	_ "github.com/didrocks/codelab-ubuntu-tools/claat/parser/md"
 )
 
 func main() {

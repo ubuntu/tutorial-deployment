@@ -20,6 +20,10 @@ import (
 	"github.com/didrocks/codelab-ubuntu-tools/claat/types"
 	"github.com/ubuntu/tutorial-deployment/claattools"
 	"github.com/ubuntu/tutorial-deployment/consts"
+
+	// allow parsers to register themselves
+	_ "github.com/didrocks/codelab-ubuntu-tools/claat/parser/gdoc"
+	_ "github.com/didrocks/codelab-ubuntu-tools/claat/parser/md"
 )
 
 const (
