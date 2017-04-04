@@ -38,6 +38,7 @@ func TestGenerateCodelabs(t *testing.T) {
 		{"testdata/codelabsrc/markdown-with-images-extension-preserved.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-with-images-online-jpg.md", false, nil, nil, false}, // it downloads the remote file in png
 		{"testdata/codelabsrc/markdown-with-images.md", false, nil, nil, false},
+		{"testdata/codelabsrc/markdown-missing-image.md", false, nil, nil, true},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate %s, watch: %v", tc.src, tc.watch), func(t *testing.T) {
