@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/ubuntu/tutorial-deployment/consts"
 )
 
 var update = flag.Bool("update", false, "update generated files")
@@ -43,11 +45,10 @@ func TestGenerateCodelabs(t *testing.T) {
 		{"testdata/codelabsrc/markdown-with-images.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-with-images.md", true, []string{"testdata/codelabsrc/markdown-with-images.md", "testdata/codelabsrc/baz.jpg", "testdata/codelabsrc/foo.png", "testdata/bar.png"}, nil, false}, // watch local images only
 		{"testdata/codelabsrc/markdown-missing-image.md", false, nil, nil, true},
-		{"gdoc:1XUIwNcJj0IIFtza-py5BGDUlWoNeXyO2V0XgNOQvyDQ", false, nil, nil, false},
-		{"gdoc:17GGTeNbjAnnU3jNuKs9SrmQ_DhSqWJPmxxRSbWIjTiY", false, nil, nil, false}, // with images
-		{"gdoc:1XUIwNcJj0IIFtza-py5BGDUlWoNeXyO2V0XgNOQvyDQ", true, nil, nil, false},  // no files to track
-		{"gdoc:17GGTeNbjAnnU3jNuKs9SrmQ_DhSqWJPmxxRSbWIjTiY", true, nil, nil, false},  // no files and images to track
-
+		{fmt.Sprintf("%s1XUIwNcJj0IIFtza-py5BGDUlWoNeXyO2V0XgNOQvyDQ", consts.GdocPrefix), false, nil, nil, false},
+		{fmt.Sprintf("%s17GGTeNbjAnnU3jNuKs9SrmQ_DhSqWJPmxxRSbWIjTiY", consts.GdocPrefix), false, nil, nil, false}, // with images
+		{fmt.Sprintf("%s1XUIwNcJj0IIFtza-py5BGDUlWoNeXyO2V0XgNOQvyDQ", consts.GdocPrefix), true, nil, nil, false},  // no files to track
+		{fmt.Sprintf("%s17GGTeNbjAnnU3jNuKs9SrmQ_DhSqWJPmxxRSbWIjTiY", consts.GdocPrefix), true, nil, nil, false},  // no files and images to track
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate %s, watch: %v", tc.src, tc.watch), func(t *testing.T) {
