@@ -28,15 +28,11 @@ func TestDiscover(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("scanning %s", tc.tutorialPaths), func(t *testing.T) {
 			// Setup/Teardown
-			defer func(i []string) func() {
-				p := paths.New()
-				origInputPaths := p.TutorialInputs
-				p.TutorialInputs = i
-				return func() {
-					p.TutorialInputs = origInputPaths
-				}
-			}(tc.tutorialPaths)()
+			p, teardown := paths.MockPath()
+			defer teardown()
+			p.TutorialInputs = tc.tutorialPaths
 
+			// Test
 			tutorials, err := Discover()
 
 			if (err != nil) != tc.wantErr {

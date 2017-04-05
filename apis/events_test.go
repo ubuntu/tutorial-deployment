@@ -34,11 +34,13 @@ func TestNewEvents(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("create event for: %+v", tc.eventsDir), func(t *testing.T) {
 			// Setup/Teardown
-			p := paths.New()
+			p, teardown := paths.MockPath()
+			defer teardown()
 			p.MetaData = tc.eventsDir
 
 			// Test
 			e, err := NewEvents()
+
 			if (err != nil) != tc.wantErr {
 				t.Errorf("NewEvents() error = %v, wantErr %v", err, tc.wantErr)
 			}

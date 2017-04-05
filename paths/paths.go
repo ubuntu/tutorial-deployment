@@ -169,3 +169,12 @@ func sanitizeRelPathToWebsite(p *string, defP, website string) (err error) {
 	}
 	return nil
 }
+
+// MockPath is for testing purposes only, enabling easy path mocking
+func MockPath() (*Path, func()) {
+	origpath := paths
+
+	return &paths, func() {
+		paths = origpath
+	}
+}
