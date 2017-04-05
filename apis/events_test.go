@@ -72,6 +72,12 @@ func TestSaveImages(t *testing.T) {
 				"event-2": event{Name: "Event 2", Logo: "assets/event2.jpg", Description: "This workshop is taking place at Event 2."},
 			},
 			false},
+		{"testdata/events/valid-missing-image",
+			Events{"event-1": event{Name: "Event 1", Logo: "img/event1.jpg", Description: "This workshop is taking place at Event 1."},
+				"event-2": event{Name: "Event 2", Logo: "event2.jpg", Description: "This workshop is taking place at Event 2."},
+			},
+			nil,
+			true},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("save events: %+v", tc.eventsDir), func(t *testing.T) {
@@ -88,6 +94,9 @@ func TestSaveImages(t *testing.T) {
 
 			if (err != nil) != tc.wantErr {
 				t.Errorf("SaveImages() error = %v, wantErr %v", err, tc.wantErr)
+			}
+			if err != nil {
+				return
 			}
 
 			if !reflect.DeepEqual(tc.eventsObj, tc.wantEvents) {
