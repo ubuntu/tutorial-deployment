@@ -9,7 +9,7 @@ import (
 	"github.com/ubuntu/tutorial-deployment/paths"
 )
 
-const apiFileName = "codelab.json"
+const apiFileName = "codelabs.json"
 
 // site API main info
 type site struct {
