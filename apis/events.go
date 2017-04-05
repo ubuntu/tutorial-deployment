@@ -25,7 +25,7 @@ type event struct {
 	Description string `json:"description"`
 }
 
-// NewEvents return events from main event site
+// NewEvents return all events for main site
 func NewEvents() (*Events, error) {
 	e := Events{}
 	p := paths.New()

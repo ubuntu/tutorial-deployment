@@ -12,7 +12,7 @@ func TestDiscover(t *testing.T) {
 	testCases := []struct {
 		tutorialPaths []string
 		expected      []string
-		wantErr   bool
+		wantErr       bool
 	}{
 		{[]string{}, nil, false},
 		{[]string{"/doesnt/exist"}, nil, true},

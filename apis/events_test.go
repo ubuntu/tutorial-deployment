@@ -33,7 +33,7 @@ func TestNewEvents(t *testing.T) {
 		{"testdata/events/no-events", Events{}, false},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("create event for: %+v", tc.eventsDir), func(t *testing.T) {
+		t.Run(fmt.Sprintf("create events for: %+v", tc.eventsDir), func(t *testing.T) {
 			// Setup/Teardown
 			p, teardown := paths.MockPath()
 			defer teardown()
