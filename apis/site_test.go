@@ -94,6 +94,28 @@ func TestGenerateContent(t *testing.T) {
 	}
 }
 
+func testSaveAPI(t *testing.T) {
+	// Setup/Teardown
+	p, teardown := paths.MockPath()
+	defer teardown()
+	apidir, teardown := testtools.TempDir(t)
+	defer teardown()
+	p.API = apidir
+
+	content := []byte("something")
+	if err := Save(content); err != nil {
+		t.Fatalf("Couldn't save API: %v", err)
+	}
+	f := path.Join(apidir, apiFileName)
+	contentF, err := ioutil.ReadFile(f)
+	if err != nil {
+		t.Errorf("%s wasn't saved on disk: %v", f, err)
+	}
+	if !reflect.DeepEqual(f, contentF) {
+		t.Errorf("Got %+v; want %+v", f, contentF)
+	}
+}
+
 func stringToContextTime(t *testing.T, date string) types.ContextTime {
 	tt, err := time.Parse("2006-01-02", date)
 	if err != nil {

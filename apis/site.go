@@ -2,9 +2,14 @@ package apis
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"path"
 
 	"github.com/ubuntu/tutorial-deployment/codelab"
+	"github.com/ubuntu/tutorial-deployment/paths"
 )
+
+const apiFileName = "codelab.json"
 
 // site API main info
 type site struct {
@@ -33,6 +38,12 @@ func GenerateContent(c []codelab.Codelab) ([]byte, error) {
 		Events:     *e,
 	}
 	return json.MarshalIndent(s, "", "  ")
+}
+
+// Save bytes on disk in API file
+func Save(dat []byte) error {
+	p := paths.New()
+	return ioutil.WriteFile(path.Join(p.API, apiFileName), dat, 0644)
 }
 
 /*
