@@ -114,6 +114,7 @@ func tempDir(t *testing.T) (string, func()) {
 
 // compare recursively all original and generated file content
 func compareAll(t *testing.T, original, generated string, ignoresf []string) {
+	var difff []string
 	if err := filepath.Walk(original, func(f string, fi os.FileInfo, err error) error {
 		relp := strings.TrimPrefix(f, original)
 		// root path
@@ -144,11 +145,16 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 		if err != nil {
 			t.Fatalf("Couldn't read %s: %v", p, err)
 		}
-		if !bytes.Equal(actual, wanted) && !contains(ignoresf, relp) {
-			t.Errorf("%s and %s content differs:\nACTUAL:\n%s\n\nWANTED:\n%s", p, f, actual, wanted)
+		if !bytes.Equal(actual, wanted) {
+			difff = append(difff, relp)
+			if !contains(ignoresf, relp) {
+				t.Errorf("%s and %s content differs:\nACTUAL:\n%s\n\nWANTED:\n%s", p, f, actual, wanted)
+			}
 		}
-		if bytes.Equal(actual, wanted) && contains(ignoresf, relp) {
-			t.Errorf("We wanted %s and %s to differ and they don't", p, f)
+		if bytes.Equal(actual, wanted) {
+			if contains(ignoresf, relp) {
+				t.Errorf("We wanted %s and %s to differ and they don't", p, f)
+			}
 		}
 		return nil
 	}); err != nil {
@@ -166,13 +172,18 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 		p := path.Join(original, relp)
 
 		if _, err := os.Stat(p); err != nil {
-			t.Fatalf("%s doesn't exist while %s does", p, f)
+			difff = append(difff, relp)
+			if !contains(ignoresf, relp) {
+				t.Errorf("%s doesn't exist while %s does", p, f)
+			}
 		}
 		return nil
 	}); err != nil {
 		t.Fatalf("err: %s", err)
 	}
-
+	if len(ignoresf) != len(difff) {
+		t.Errorf("Not all expected modified files are present: want: %v, got: %v", ignoresf, difff)
+	}
 }
 
 func contains(s []string, e string) bool {
