@@ -100,6 +100,58 @@ func TestGenerateCodelabs(t *testing.T) {
 	}
 }
 
+func TestRefreshCodelabs(t *testing.T) {
+	var template = "testdata/template.html"
+	var generatedpath = "testdata/codelabgenerated"
+
+	testCases := []struct {
+		src   string
+		watch bool
+
+		wantFilesWatched []string
+		wantDiffFiles    []string
+		wantErr          bool
+	}{
+		{"testdata/codelabsrc/markdown-no-image.md", false, nil, []string{"example-snap-tutorial/index.inc", "example-snap-tutorial/codelab.json", "example-snap-tutorial/img/128451a661545188.png"}, false},
+		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-with-images-simple.md", "testdata/codelabsrc/foo.png"}, []string{"example-snap-tutorial/index.inc", "example-snap-tutorial/codelab.json", "example-snap-tutorial/img/128451a661545188.png"}, false},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("refresh %s, watch: %v", tc.src, tc.watch), func(t *testing.T) {
+			out, teardown := tempDir(t)
+			defer teardown()
+
+			compareorigin := path.Join(generatedpath, path.Base(tc.src))
+
+			// Generate content corresponding to no-image.
+			c, err := New(tc.src, out, template, tc.watch)
+			if err != nil {
+				t.Fatalf("Couldn't create %s: an error occured: %v", tc.src, err)
+			}
+			c.RefURI = "testdata/codelabsrc/markdown-with-images-simple.md"
+			comparenew := path.Join(generatedpath, path.Base(c.RefURI))
+
+			// Refreshing with a new markdown files containing images
+			err = c.Refresh()
+
+			if (err != nil) != tc.wantErr {
+				t.Errorf("New() error = %v, wantErr %v", err, tc.wantErr)
+				return
+			}
+
+			// should differ from original content and match the new content
+			compareAll(t, compareorigin, out, tc.wantDiffFiles)
+			compareAll(t, comparenew, out, nil)
+
+			// we are watching all new source files
+			sort.Strings(c.FilesWatched)
+			sort.Strings(tc.wantFilesWatched)
+			if !reflect.DeepEqual(c.FilesWatched, tc.wantFilesWatched) {
+				t.Errorf("got %+v; want %+v", c.FilesWatched, tc.wantFilesWatched)
+			}
+		})
+	}
+}
+
 func tempDir(t *testing.T) (string, func()) {
 	path, err := ioutil.TempDir("", "tutorial-test")
 	if err != nil {

@@ -70,6 +70,7 @@ func (c *Codelab) Refresh() error {
 	if err := c.wipe(); err != nil {
 		return err
 	}
+	c.FilesWatched = nil
 	if err := c.download(); err != nil {
 		return err
 	}
