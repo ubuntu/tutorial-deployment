@@ -38,6 +38,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't detect codelabs: %s", err)
 	}
+	if err := os.RemoveAll(p.Export); err != nil {
+		log.Fatalf("Couldn't remove codelab export path %s: %v", p.Export, err)
+	}
 	for _, src := range codelabRefs {
 		go func(ref string) {
 			c, err := codelab.New(ref, p.Export, template, false)
@@ -63,6 +66,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := os.RemoveAll(p.API); err != nil {
+		log.Fatalf("Couldn't remove API export path %s: %v", p.API, err)
+	}
 	dat, err := apis.GenerateContent(codelabs)
 	if err != nil {
 		log.Fatalf("Couldn't generate API: %s", err)
