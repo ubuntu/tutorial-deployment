@@ -7,6 +7,7 @@ import (
 
 	"os"
 
+	"github.com/ubuntu/tutorial-deployment/apis"
 	"github.com/ubuntu/tutorial-deployment/codelab"
 	"github.com/ubuntu/tutorial-deployment/consts"
 	"github.com/ubuntu/tutorial-deployment/internaltools"
@@ -48,6 +49,7 @@ func main() {
 	}
 
 	hasError := false
+	var codelabs []codelab.Codelab
 	for _ = range codelabRefs {
 		res := <-ch
 		if res.err != nil {
@@ -55,9 +57,17 @@ func main() {
 			hasError = true
 			continue
 		}
+		codelabs = append(codelabs, res.c)
 	}
 	if hasError {
 		os.Exit(1)
 	}
 
+	dat, err := apis.GenerateContent(codelabs)
+	if err != nil {
+		log.Fatalf("Couldn't generate API: %s", err)
+	}
+	if err != apis.Save(dat) {
+		log.Fatalf("Coudln't save API: %s", err)
+	}
 }
