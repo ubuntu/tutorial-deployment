@@ -13,8 +13,8 @@ type site struct {
 	Events     Events            `json:"events"`
 }
 
-// GenerateAPIcontent for website api, preparing and saving event images already
-func GenerateAPIcontent(c []codelab.Codelab) ([]byte, error) {
+// GenerateContent for website api, preparing and saving event images already
+func GenerateContent(c []codelab.Codelab) ([]byte, error) {
 	e, err := NewEvents()
 	if err != nil {
 		return nil, err

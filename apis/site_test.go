@@ -21,7 +21,7 @@ import (
 
 var update = flag.Bool("update", false, "update generated files")
 
-func TestGenerateAPIcontent(t *testing.T) {
+func TestGenerateContent(t *testing.T) {
 	published := types.LegacyStatus([]string{"Published"})
 	exCodelabs := []codelab.Codelab{
 		codelab.Codelab{RefURI: "REFPATH1", Codelab: types.Codelab{Meta: types.Meta{ID: "123", Title: "A title", Status: &published, Summary: "Awesome tutorial", URL: "https://tutorial1.com", Difficulty: 3, Categories: []string{"category1", "category2"}, Tags: []string{"foo", "bar"}, Duration: 60, Feedback: "http://feedback.com"}}, Updated: stringToContextTime(t, "1983-09-13"), FilesWatched: []string{"onefile", "twofiles"}},
@@ -52,7 +52,7 @@ func TestGenerateAPIcontent(t *testing.T) {
 			p.API = apidir
 
 			// Test
-			dat, err := GenerateAPIcontent(tc.codelabs)
+			dat, err := GenerateContent(tc.codelabs)
 
 			if (err != nil) != tc.wantErr {
 				t.Errorf("GenerateAPIcontent() error = %v, wantErr %v", err, tc.wantErr)
