@@ -23,6 +23,13 @@ func TestNewEvents(t *testing.T) {
 				"event-2": event{Name: "Event 2", Logo: "event2.jpg", Description: "This workshop is taking place at Event 2."},
 			},
 			false},
+		{"doesnt/exist", nil, true},
+		{"testdata/events/valid-missing-image", // we still load correctly, we don't touch images at this stage
+			Events{"event-1": event{Name: "Event 1", Logo: "img/event1.jpg", Description: "This workshop is taking place at Event 1."},
+				"event-2": event{Name: "Event 2", Logo: "event2.jpg", Description: "This workshop is taking place at Event 2."},
+			},
+			false},
+		{"testdata/events/no-events", Events{}, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("create event for: %+v", tc.eventsDir), func(t *testing.T) {

@@ -1,0 +1,8 @@
+event-1:
+  name: "Event 1"
+  logo: img/event1.jpg
+  description: "This workshop is taking place at Event 1."
+event-2:
+  name: "Event 2"
+  logo: event2.jpg
+  description: "This workshop is taking place at Event 2."
