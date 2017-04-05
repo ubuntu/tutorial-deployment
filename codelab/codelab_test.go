@@ -54,6 +54,9 @@ func TestGenerateCodelabs(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate %s, watch: %v", tc.src, tc.watch), func(t *testing.T) {
+			if !*update { // we don't want update to be parallel as some tests are referencing the same source element
+				t.Parallel()
+			}
 			out, teardown := tempDir(t)
 			defer teardown()
 
