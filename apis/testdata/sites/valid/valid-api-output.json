@@ -1,0 +1,79 @@
+{
+  "categories": {
+    "snap": {
+      "lightcolor": "var(--paper-indigo-300)",
+      "maincolor": "var(--paper-indigo-500)",
+      "secondarycolor": "var(--paper-indigo-700)"
+    },
+    "snapcraft": {
+      "lightcolor": "var(--paper-teal-300)",
+      "maincolor": "var(--paper-teal-500)",
+      "secondarycolor": "var(--paper-teal-700)"
+    },
+    "unknown": {
+      "lightcolor": "#444",
+      "maincolor": "#444",
+      "secondarycolor": "#444"
+    }
+  },
+  "codelabs": [
+    {
+      "id": "123",
+      "duration": 60,
+      "title": "A title",
+      "summary": "Awesome tutorial",
+      "theme": "",
+      "status": [
+        "Published"
+      ],
+      "category": [
+        "category1",
+        "category2"
+      ],
+      "tags": [
+        "foo",
+        "bar"
+      ],
+      "feedback": "http://feedback.com",
+      "difficulty": 3,
+      "url": "https://tutorial1.com",
+      "updated": "1983-09-13T00:00:00Z"
+    },
+    {
+      "id": "",
+      "duration": 0,
+      "title": "",
+      "summary": "",
+      "theme": "",
+      "status": null,
+      "category": null,
+      "tags": null,
+      "url": "",
+      "updated": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "456",
+      "duration": 0,
+      "title": "",
+      "summary": "",
+      "theme": "",
+      "status": null,
+      "category": null,
+      "tags": null,
+      "url": "",
+      "updated": "2017-04-05T00:00:00Z"
+    }
+  ],
+  "events": {
+    "event-1": {
+      "name": "Event 1",
+      "logo": "assets/event1.jpg",
+      "description": "This workshop is taking place at Event 1."
+    },
+    "event-2": {
+      "name": "Event 2",
+      "logo": "assets/event2.jpg",
+      "description": "This workshop is taking place at Event 2."
+    }
+  }
+}
