@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/ubuntu/tutorial-deployment/consts"
+	"github.com/ubuntu/tutorial-deployment/testtools"
 )
 
 var update = flag.Bool("update", false, "update generated files")
@@ -199,12 +200,12 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 		}
 		if !bytes.Equal(actual, wanted) {
 			difff = append(difff, relp)
-			if !contains(ignoresf, relp) {
+			if !testtools.StringContains(ignoresf, relp) {
 				t.Errorf("%s and %s content differs:\nACTUAL:\n%s\n\nWANTED:\n%s", p, f, actual, wanted)
 			}
 		}
 		if bytes.Equal(actual, wanted) {
-			if contains(ignoresf, relp) {
+			if testtools.StringContains(ignoresf, relp) {
 				t.Errorf("We wanted %s and %s to differ and they don't", p, f)
 			}
 		}
@@ -225,7 +226,7 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 
 		if _, err := os.Stat(p); err != nil {
 			difff = append(difff, relp)
-			if !contains(ignoresf, relp) {
+			if !testtools.StringContains(ignoresf, relp) {
 				t.Errorf("%s doesn't exist while %s does", p, f)
 			}
 		}
@@ -236,13 +237,4 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 	if len(ignoresf) != len(difff) {
 		t.Errorf("Not all expected modified files are present: want: %v, got: %v", ignoresf, difff)
 	}
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }

@@ -2,12 +2,12 @@ package apis
 
 import (
 	"fmt"
-	"io/ioutil"
 	"path"
 	"reflect"
 	"testing"
 
 	"github.com/ubuntu/tutorial-deployment/paths"
+	"github.com/ubuntu/tutorial-deployment/testtools"
 
 	"os"
 )
@@ -82,7 +82,7 @@ func TestSaveImages(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("save events: %+v", tc.eventsDir), func(t *testing.T) {
 			// Setup/Teardown
-			out, teardown := tempDir(t)
+			out, teardown := testtools.TempDir(t)
 			defer teardown()
 			p, teardown := paths.MockPath()
 			defer teardown()
@@ -109,17 +109,5 @@ func TestSaveImages(t *testing.T) {
 				}
 			}
 		})
-	}
-}
-
-func tempDir(t *testing.T) (string, func()) {
-	path, err := ioutil.TempDir("", "tutorial-test")
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-	return path, func() {
-		if err := os.RemoveAll(path); err != nil {
-			t.Fatalf("err: %s", err)
-		}
 	}
 }
