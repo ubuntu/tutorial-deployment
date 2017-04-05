@@ -4,14 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"path"
+	"reflect"
 	"testing"
 	"time"
 
 	"bytes"
 
+	"sort"
+
 	"github.com/didrocks/codelab-ubuntu-tools/claat/types"
 	"github.com/ubuntu/tutorial-deployment/codelab"
 	"github.com/ubuntu/tutorial-deployment/paths"
+	"github.com/ubuntu/tutorial-deployment/testtools"
 )
 
 var update = flag.Bool("update", false, "update generated files")
@@ -28,19 +33,23 @@ func TestGenerateAPIcontent(t *testing.T) {
 		codelabs []codelab.Codelab
 
 		wantReturnPath string
+		wantAssets     []string
 		wantErr        bool
 	}{
-		{"testdata/sites/valid", exCodelabs, "testdata/sites/valid/valid-api-output.json", false},
-		{"testdata/sites/categories-missing", exCodelabs, "", true},
-		{"testdata/sites/events-missing", exCodelabs, "", true},
-		{"testdata/sites/valid", []codelab.Codelab{}, "testdata/sites/valid/valid-without-codelab.json", false},
+		{"testdata/sites/valid", exCodelabs, "testdata/sites/valid/valid-api-output.json", []string{"event1.jpg", "event2.jpg"}, false},
+		{"testdata/sites/categories-missing", exCodelabs, "", nil, true},
+		{"testdata/sites/events-missing", exCodelabs, "", nil, true},
+		{"testdata/sites/valid", []codelab.Codelab{}, "testdata/sites/valid/valid-without-codelab.json", []string{"event1.jpg", "event2.jpg"}, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate api with codelab: %+v, metadata: %s", tc.codelabs, tc.metaDir), func(t *testing.T) {
 			// Setup/Teardown
 			p, teardown := paths.MockPath()
 			defer teardown()
+			apidir, teardown := testtools.TempDir(t)
+			defer teardown()
 			p.MetaData = tc.metaDir
+			p.API = apidir
 
 			// Test
 			dat, err := GenerateAPIcontent(tc.codelabs)
@@ -65,6 +74,21 @@ func TestGenerateAPIcontent(t *testing.T) {
 
 			if !bytes.Equal(dat, wanted) {
 				t.Errorf("generate api: got %s; want %s", dat, wanted)
+			}
+
+			assetsP := path.Join(apidir, assetsDir)
+			files, err := ioutil.ReadDir(assetsP)
+			if err != nil {
+				t.Fatalf("couldn't list %s: %v", assetsP, err)
+			}
+			var assets []string
+			for _, file := range files {
+				assets = append(assets, file.Name())
+			}
+			sort.Strings(assets)
+			sort.Strings(tc.wantAssets)
+			if !reflect.DeepEqual(assets, tc.wantAssets) {
+				t.Errorf("assets not matching. Got %+v; want %+v", assets, tc.wantAssets)
 			}
 		})
 	}
