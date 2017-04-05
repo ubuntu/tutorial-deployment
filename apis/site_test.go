@@ -31,6 +31,9 @@ func TestGenerateAPIcontent(t *testing.T) {
 		wantErr        bool
 	}{
 		{"testdata/sites/valid", exCodelabs, "testdata/sites/valid/valid-api-output.json", false},
+		{"testdata/sites/categories-missing", exCodelabs, "", true},
+		{"testdata/sites/events-missing", exCodelabs, "", true},
+		{"testdata/sites/valid", []codelab.Codelab{}, "testdata/sites/valid/valid-without-codelab.json", false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("generate api with codelab: %+v, metadata: %s", tc.codelabs, tc.metaDir), func(t *testing.T) {
