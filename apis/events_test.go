@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"path"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/ubuntu/tutorial-deployment/paths"
 	"github.com/ubuntu/tutorial-deployment/testtools"
 
 	"os"
+
+	"github.com/ubuntu/tutorial-deployment/consts"
 )
 
 func TestNewEvents(t *testing.T) {
@@ -68,8 +71,8 @@ func TestSaveImages(t *testing.T) {
 			Events{"event-1": event{Name: "Event 1", Logo: "img/event1.jpg", Description: "This workshop is taking place at Event 1."},
 				"event-2": event{Name: "Event 2", Logo: "event2.jpg", Description: "This workshop is taking place at Event 2."},
 			},
-			Events{"event-1": event{Name: "Event 1", Logo: "assets/event1.jpg", Description: "This workshop is taking place at Event 1."},
-				"event-2": event{Name: "Event 2", Logo: "assets/event2.jpg", Description: "This workshop is taking place at Event 2."},
+			Events{"event-1": event{Name: "Event 1", Logo: fmt.Sprintf("%s/%s/event1.jpg", consts.APIURL, assetsDir), Description: "This workshop is taking place at Event 1."},
+				"event-2": event{Name: "Event 2", Logo: fmt.Sprintf("%s/%s/event2.jpg", consts.APIURL, assetsDir), Description: "This workshop is taking place at Event 2."},
 			},
 			false},
 		{"testdata/events/valid-missing-image",
@@ -100,10 +103,10 @@ func TestSaveImages(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(tc.eventsObj, tc.wantEvents) {
-				t.Errorf("Image paths not changed in event: got %+v; want %+v", tc.eventsObj, tc.wantEvents)
+				t.Errorf("Image paths not correctly changed in event: got %+v; want %+v", tc.eventsObj, tc.wantEvents)
 			}
 			for _, e := range tc.wantEvents {
-				imgP := path.Join(p.API, e.Logo)
+				imgP := path.Join(p.API, strings.TrimPrefix(e.Logo, consts.APIURL))
 				if _, err := os.Stat(imgP); os.IsNotExist(err) {
 					t.Errorf("%s doesn't exist when we wanted it", imgP)
 				}

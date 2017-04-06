@@ -8,6 +8,8 @@ import (
 	"path"
 	"path/filepath"
 	"sync"
+
+	"github.com/ubuntu/tutorial-deployment/consts"
 )
 
 const (
@@ -86,8 +88,8 @@ func (p *Path) CreateTempOutPath() error {
 		return fmt.Errorf("Couldn't create temp path: %s", err)
 	}
 	p.tempRootPath = tmp
-	p.API = path.Join(tmp, defaultRelativeAPIPath)
-	p.Export = path.Join(tmp, defaultRelativeExportPath)
+	p.API = path.Join(tmp, consts.APIURL)
+	p.Export = path.Join(tmp, consts.CodelabSrcURL)
 	return nil
 }
 

@@ -8,6 +8,7 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
+	"github.com/ubuntu/tutorial-deployment/consts"
 	"github.com/ubuntu/tutorial-deployment/paths"
 )
 
@@ -52,15 +53,16 @@ func (evs *Events) SaveImages() error {
 	for k, e := range *evs {
 		// path is relative to metadata directory (where the events file is located)
 		src := path.Join(p.MetaData, e.Logo)
-		e.Logo = path.Join(assetsDir, path.Base(e.Logo))
+		dest := path.Join(assetsDir, path.Base(e.Logo))
+		e.Logo = path.Join(consts.APIURL, dest)
 
 		data, err := ioutil.ReadFile(src)
 		if err != nil {
 			return fmt.Errorf("%s doesn't exist: %v", src, err)
 		}
 
-		if err := ioutil.WriteFile(path.Join(p.API, e.Logo), data, 0644); err != nil {
-			return fmt.Errorf("couldn't create %s: %v", path.Join(p.API, e.Logo), err)
+		if err := ioutil.WriteFile(path.Join(p.API, dest), data, 0644); err != nil {
+			return fmt.Errorf("couldn't create %s: %v", path.Join(p.API, dest), err)
 		}
 
 		(*evs)[k] = e
