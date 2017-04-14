@@ -1,6 +1,8 @@
 # tutorial-deployment
 Serve and help generating tutorial deployment for https://tutorials.ubuntu.com
 
+[![Test Status](https://travis-ci.org/ubuntu/tutorial-deployment.svg?branch=master)](https://travis-ci.org/ubuntu/tutorial-deployment)
+
 Those couple of tools are used in conjonction with https://github.com/canonical-websites/tutorials.ubuntu.com to generate a tutorial website. Those can be written in markdown or google doc, [using the claat google's library](https://github.com/googlecodelabs/tools).
 
 ## Important note
