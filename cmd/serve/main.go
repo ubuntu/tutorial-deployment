@@ -35,6 +35,11 @@ func main() {
 	if err := p.CreateTempOutPath(); err != nil {
 		log.Fatalf("Couldn't create temporary export paths: %s", err)
 	}
+	defer func() {
+		if err := p.CleanTempPath(); err != nil {
+			log.Printf("Couldn't clean temporary export directory: %v\n", err)
+		}
+	}()
 
 	var err error
 	if watcher, err = fsnotify.NewWatcher(); err != nil {
