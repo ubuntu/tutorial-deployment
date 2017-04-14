@@ -6,7 +6,7 @@ categories: snapcraft
 
 tags: interfaces,content-interfaces,up-to-four
 
-difficulty: 2
+difficulty: 1
 
 status: Published
 
