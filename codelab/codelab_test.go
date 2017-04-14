@@ -181,6 +181,11 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 		relp = relp[1:]
 		p := path.Join(generated, relp)
 
+		// .keep files are only for keeping directory creations in remote git repo
+		if filepath.Base(p) == ".keep" {
+			return nil
+		}
+
 		fo, err := os.Stat(p)
 		if err != nil {
 			t.Fatalf("%s doesn't exist while %s does", p, f)
@@ -229,6 +234,11 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 		}
 		relp = relp[1:]
 		p := path.Join(original, relp)
+
+		// .keep files are only for keeping directory creations in remote git repo
+		if filepath.Base(p) == ".keep" {
+			return nil
+		}
 
 		if _, err := os.Stat(p); err != nil {
 			difff = append(difff, relp)
