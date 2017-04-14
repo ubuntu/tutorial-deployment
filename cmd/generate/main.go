@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"path"
 
@@ -15,6 +16,7 @@ import (
 )
 
 func main() {
+	flag.Usage = usage
 	flag.Parse()
 	args := internaltools.UniqueStrings(flag.Args())
 
@@ -76,4 +78,19 @@ func main() {
 	if err != apis.Save(dat) {
 		log.Fatalf("Coudln't save API: %s", err)
 	}
+}
+
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage of %s: %s [options] [CodelabsDirOrFilesToWatch…]\n", os.Args[0], os.Args[0])
+	fmt.Fprintf(os.Stderr, `Generate tutorials in html, using Polymerjs and its API.
+
+It fetches in well known places the codelab list and sources (both in google
+doc or markdown format), the general events and categories metadata, to generate
+the desired output and API files.
+
+Every default directories will be detected by the tool if present in the tutorial
+directories. Arguments and options can tweak this behavior.
+
+`)
+	flag.PrintDefaults()
 }

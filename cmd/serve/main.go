@@ -20,6 +20,7 @@ import (
 var codelabs []codelab.Codelab
 
 func main() {
+	flag.Usage = usage
 	flag.Parse()
 	args := internaltools.UniqueStrings(flag.Args())
 
@@ -108,4 +109,23 @@ func refreshAPIs(codelabs []codelab.Codelab, apiDir string) error {
 		return fmt.Errorf("Couldn't save API: %s", err)
 	}
 	return nil
+}
+
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage of %s: %s [options] [CodelabsDirOrFilesToWatch…]\n", os.Args[0], os.Args[0])
+	fmt.Fprintf(os.Stderr, `Generate tutorials in html, using Polymerjs, to be dynamically served.
+
+Those codelabs are generated on the fly in a temporary directory and in a non
+destructive way. Any save on local source files (codelab markdown file or any
+referenced local images) will retrigger the corresponding codelab build and
+API generation, served by this local http webserver (default port is **8080**)
+
+If the currently written codelabs are out of tree, they can be specified (files or
+directories) directly on the command line.
+
+Every default directories will be detected by the tool if present in the tutorial
+directories. Arguments and options can tweak this behavior.
+
+`)
+	flag.PrintDefaults()
 }
