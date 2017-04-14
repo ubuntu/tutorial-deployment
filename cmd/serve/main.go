@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"path"
+	"time"
 
 	"sync"
 
@@ -19,7 +22,10 @@ import (
 
 var codelabs []codelab.Codelab
 
+const defaultPort = 8080
+
 func main() {
+	port := flag.Int("port", defaultPort, "Port message to listen on")
 	flag.Usage = usage
 	flag.Parse()
 	args := internaltools.UniqueStrings(flag.Args())
@@ -98,6 +104,19 @@ func main() {
 	stop := make(chan bool)
 	listenForChanges(&wg, stop)
 
+	s := startHTTPServer(&wg, *port)
+
+	userstop := make(chan os.Signal)
+	signal.Notify(userstop, os.Interrupt)
+	<-userstop
+
+	close(stop)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if err := s.Shutdown(ctx); err != nil {
+		panic(err)
+	}
+	cancel()
+
 	wg.Wait()
 
 }
@@ -123,7 +142,7 @@ func usage() {
 Those codelabs are generated on the fly in a temporary directory and in a non
 destructive way. Any save on local source files (codelab markdown file or any
 referenced local images) will retrigger the corresponding codelab build and
-API generation, served by this local http webserver (default port is **8080**)
+API generation, served by this local http webserver (default port is %d)
 
 If the currently written codelabs are out of tree, they can be specified (files or
 directories) directly on the command line.
@@ -131,6 +150,6 @@ directories) directly on the command line.
 Every default directories will be detected by the tool if present in the tutorial
 directories. Arguments and options can tweak this behavior.
 
-`)
+`, defaultPort)
 	flag.PrintDefaults()
 }

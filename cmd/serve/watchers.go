@@ -49,6 +49,7 @@ func listenForChanges(wg *sync.WaitGroup, stop chan bool) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer watcher.Close()
 		p := paths.New()
 		for {
 			select {
@@ -76,6 +77,7 @@ func listenForChanges(wg *sync.WaitGroup, stop chan bool) {
 
 			case err := <-watcher.Errors:
 				log.Println("Watch error:", err)
+
 			case <-stop:
 				return
 			}
