@@ -13,5 +13,6 @@ deploy:
   file:
     - bin/generate
   on:
+    tags: true
     repo: ubuntu/tutorial-deployment
-    on: tags
+    branch: travis-test
