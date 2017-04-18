@@ -5,7 +5,13 @@ go:
 
 script: "./runtests"
 
-before_deploy: go build ./...
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y tree
+
+before_deploy:
+  - go build ./...
+  - tree
 deploy:
   provider: releases
   skip_cleanup: true
