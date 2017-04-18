@@ -10,7 +10,8 @@ before_install:
   - sudo apt-get install -y tree
 
 before_deploy:
-  - go build ./...
+  - cd cmd/generate && go build
+  - cd ../deploy && go build
   - tree
 deploy:
   provider: releases
