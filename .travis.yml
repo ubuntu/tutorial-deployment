@@ -11,7 +11,7 @@ before_install:
 
 before_deploy:
   - cd cmd/generate && go build
-  - cd ../deploy && go build
+  - cd cmd/deploy && go build
   - tree
 deploy:
   provider: releases
