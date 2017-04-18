@@ -11,8 +11,8 @@ deploy:
   api_key:
     secure: vNIFWGWFgctHet9E422oy/vXdy0EHjhx4guoIKKvtFVZpjOtZpuhTIWq4UUlaYoQT3k9JjaKwzQWp8QrLBP54sXB2cvK32840D1bd4KSm5IrNxwIMRV09S3y0jO191G03dmCKoN4qsojyOY25p1Es94fbCAcyIbFy7JK6Iy8XqhaSG2vGEshBiKLw7pZHUzEnrB+Inzfb4NRCWNL1XdnNugNhxa22AfDZVR9MhS0FNDZWFuEqG5G2Sd43Zf+fDpUsqQ4fj4pHMGt+ifhk5ciiCoCZxWIVrLWg1ANjTuGz3rIKYfFla97KHOoh60bsPd6z5LiIofuaD3mp2APe4Vu+WSnLiotTXUa8m2ZcGGEQHHhSdAhwJ7QwxRGlKbtsb2GrRw4NKJv9weCNS9W+W6Op5YucoFXp1oq3ehqJJzbN3LDxI5VEZ1mDXAAjDmSwio1LzuGQurY3P3360G4b5ezeJJEBDyrvt52eubAk0sr+fxnXxGDv+x5omXlwRM6gXc5w33zNOJiNgHAYxUPQguEzRNTD2EWS5mKEtSVnWsxhsL1pG2ViA0cXjqsshUHOgjIOENSatf1hhdZG9ABbBQQY3GMMNa6MI0bG5b7HxeUGJBHbdwKybZrgwVb3HPj+fllX5ITgj1yTY6d2Wgx4kydDeUZZNdbnddcrOdPTjO8PVY=
   file:
-  - bin/deploy
-  - bin/generate
+  - cmd/deploy/deploy
+  - cmd/generate/generate
   on:
     tags: true
     repo: ubuntu/tutorial-deployment
