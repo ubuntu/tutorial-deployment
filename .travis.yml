@@ -20,4 +20,3 @@ deploy:
   on:
     tags: true
     repo: ubuntu/tutorial-deployment
-    branch: travis-test
