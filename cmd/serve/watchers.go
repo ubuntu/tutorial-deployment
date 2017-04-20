@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"path"
 
@@ -39,7 +38,7 @@ func registerAllWatchers() error {
 			watchedTriggers[f] = m
 			watchedDirs = append(watchedDirs, path.Dir(f))
 		}
-		fmt.Printf("DEBUG: codelab: %+v\n", c)
+		log.Printf("DEBUG: codelab: %+v\n", c)
 	}
 	watchedDirs = internaltools.UniqueStrings(watchedDirs)
 	return watchdirs()
