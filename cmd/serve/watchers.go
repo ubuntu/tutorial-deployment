@@ -59,14 +59,13 @@ func listenForChanges(wg *sync.WaitGroup, stop chan bool) {
 				if event.Op&fsnotify.Write == fsnotify.Write ||
 					event.Op&fsnotify.Remove == fsnotify.Remove ||
 					event.Op&fsnotify.Create == fsnotify.Create {
-					f := event.Name
+					cs := impactedCodelabs(event.Name)
 					// only refresh codelabs content if source file changed
-					if strings.HasSuffix(f, ".md") {
-						if err := refreshCodelabsFor(f, *p); err != nil {
+					if strings.HasSuffix(event.Name, ".md") {
+						if err := refreshCodelabs(cs, *p); err != nil {
 							log.Print(err)
 						}
 					}
-
 				}
 
 			case err := <-watcher.Errors:
@@ -88,15 +87,11 @@ func watchdirs() error {
 	return nil
 }
 
-func refreshCodelabsFor(file string, p paths.Path) error {
-	w, ok := watchedTriggers[file]
-	if !ok {
-		return nil
-	}
+func refreshCodelabs(cs []*codelab.Codelab, p paths.Path) error {
 	if err := unwatchdirs(); err != nil {
 		return fmt.Errorf("Couldn't unwatch all dirs: %v", err)
 	}
-	for _, c := range w {
+	for _, c := range cs {
 		if err := c.Refresh(); err != nil {
 			return fmt.Errorf("Couldn't refresh successfully %s", c.RefURI)
 		}
@@ -110,6 +105,14 @@ func refreshCodelabsFor(file string, p paths.Path) error {
 	}
 
 	return nil
+}
+
+func impactedCodelabs(file string) []*codelab.Codelab {
+	w, ok := watchedTriggers[file]
+	if !ok {
+		return nil
+	}
+	return []*codelab.Codelab(w)
 }
 
 func unwatchdirs() error {
