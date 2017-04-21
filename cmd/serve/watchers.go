@@ -62,6 +62,9 @@ func listenForChanges(wg *sync.WaitGroup, stop <-chan struct{}) {
 					if err := refreshCodelabs(cs, *p); err != nil {
 						log.Print(err)
 					}
+					for _, c := range cs {
+						hub.Send([]byte(c.URL))
+					}
 				}
 
 			case err := <-watcher.Errors:
