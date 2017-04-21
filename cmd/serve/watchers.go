@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"path"
-	"strings"
 
 	"sync"
 
@@ -60,11 +59,8 @@ func listenForChanges(wg *sync.WaitGroup, stop chan bool) {
 					event.Op&fsnotify.Remove == fsnotify.Remove ||
 					event.Op&fsnotify.Create == fsnotify.Create {
 					cs := impactedCodelabs(event.Name)
-					// only refresh codelabs content if source file changed
-					if strings.HasSuffix(event.Name, ".md") {
-						if err := refreshCodelabs(cs, *p); err != nil {
-							log.Print(err)
-						}
+					if err := refreshCodelabs(cs, *p); err != nil {
+						log.Print(err)
 					}
 				}
 
