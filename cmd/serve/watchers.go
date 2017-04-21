@@ -46,7 +46,7 @@ func registerAllWatchers() error {
 	return watchdirs()
 }
 
-func listenForChanges(wg *sync.WaitGroup, stop chan bool) {
+func listenForChanges(wg *sync.WaitGroup, stop <-chan struct{}) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()

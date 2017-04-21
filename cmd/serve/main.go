@@ -99,7 +99,7 @@ func main() {
 		log.Fatalf("Couldn't register watchers: %v", err)
 	}
 	wg := sync.WaitGroup{}
-	stop := make(chan bool)
+	stop := make(chan struct{})
 	listenForChanges(&wg, stop)
 
 	startHTTPServer(*port, &wg, stop)

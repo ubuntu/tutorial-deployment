@@ -13,7 +13,7 @@ import (
 	"github.com/ubuntu/tutorial-deployment/paths"
 )
 
-func startHTTPServer(port int, wg *sync.WaitGroup, stop chan bool) {
+func startHTTPServer(port int, wg *sync.WaitGroup, stop <-chan struct{}) {
 	s := &http.Server{Addr: fmt.Sprintf(":%d", port)}
 	log.Printf("Serving on http://localhost:%d\n", port)
 
