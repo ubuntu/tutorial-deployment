@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"path"
 	"sync"
+	"time"
 
 	"github.com/ubuntu/tutorial-deployment/consts"
 	"github.com/ubuntu/tutorial-deployment/paths"
 )
 
-func startHTTPServer(wg *sync.WaitGroup, port int) *http.Server {
+func startHTTPServer(port int, wg *sync.WaitGroup, stop chan bool) {
 	s := &http.Server{Addr: fmt.Sprintf(":%d", port)}
 	log.Printf("Serving on http://localhost:%d\n", port)
 
@@ -25,7 +27,8 @@ func startHTTPServer(wg *sync.WaitGroup, port int) *http.Server {
 	})
 	http.Handle("/", http.FileServer(http.Dir(p.Website)))
 
-	wg.Add(1)
+	wg.Add(2)
+	// Serve
 	go func() {
 		defer wg.Done()
 		defer s.Close()
@@ -33,6 +36,15 @@ func startHTTPServer(wg *sync.WaitGroup, port int) *http.Server {
 			log.Printf("Server quit: %s", err)
 		}
 	}()
+	// Stop server
+	go func() {
+		defer wg.Done()
+		<-stop
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		if err := s.Shutdown(ctx); err != nil {
+			panic(err)
+		}
+		cancel()
+	}()
 
-	return s
 }

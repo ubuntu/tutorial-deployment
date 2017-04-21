@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"path"
-	"time"
 
 	"sync"
 
@@ -104,21 +102,14 @@ func main() {
 	stop := make(chan bool)
 	listenForChanges(&wg, stop)
 
-	s := startHTTPServer(&wg, *port)
+	startHTTPServer(*port, &wg, stop)
 
 	userstop := make(chan os.Signal)
 	signal.Notify(userstop, os.Interrupt)
 	<-userstop
 
 	close(stop)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	if err := s.Shutdown(ctx); err != nil {
-		panic(err)
-	}
-	cancel()
-
 	wg.Wait()
-
 }
 
 func refreshAPIs(codelabs []codelab.Codelab, apiDir string) error {
