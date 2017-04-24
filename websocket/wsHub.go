@@ -1,9 +1,17 @@
 package websocket
 
+import (
+	"sync"
+)
+
 // Hub maintains the set of active clients and broadcasts messages to the clients.
 type Hub struct {
-	broadcast  chan []byte
-	clients    map[*client]bool
+	broadcast chan []byte
+
+	// the mutex is only for the tests
+	muC     *sync.RWMutex
+	clients map[*client]bool
+
 	register   chan *client
 	unregister chan *client
 	stop       chan struct{}
@@ -13,6 +21,7 @@ type Hub struct {
 func NewHub() *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),
+		muC:        &sync.RWMutex{},
 		clients:    make(map[*client]bool),
 		register:   make(chan *client),
 		unregister: make(chan *client),
@@ -25,14 +34,16 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
+			h.muC.Lock()
 			h.clients[client] = true
+			h.muC.Unlock()
 		case client := <-h.unregister:
+			h.muC.Lock()
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
-				if _, ok := <-client.send; ok {
-					close(client.send)
-				}
+				close(client.send)
 			}
+			h.muC.Unlock()
 		case message := <-h.broadcast:
 			for client := range h.clients {
 				select {
@@ -47,7 +58,9 @@ func (h *Hub) Run() {
 		case <-h.stop:
 			for c := range h.clients {
 				c.conn.Close()
+				h.muC.Lock()
 				delete(h.clients, c)
+				h.muC.Unlock()
 			}
 			return
 		}
