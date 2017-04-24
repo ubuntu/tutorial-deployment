@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-
 	"strings"
-
+	"sync"
+	"testing"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -150,8 +149,16 @@ func TestHubSendDefficientClients(t *testing.T) {
 // createHub and return a teardown cleanup function
 func createHub() (*Hub, func()) {
 	h := NewHub()
-	go h.Run()
-	return h, h.Stop
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		h.Run()
+	}()
+	return h, func() {
+		h.Stop()
+		wg.Wait()
+	}
 }
 
 func addClient(t *testing.T, httpURL string) (*websocket.Conn, func()) {
