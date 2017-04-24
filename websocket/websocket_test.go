@@ -13,12 +13,11 @@ import (
 )
 
 func TestHubStartStopNoClient(t *testing.T) {
-	h := NewHub()
-	go h.Run()
+	h, stopHub := createHub()
 	if len(h.clients) != 0 {
 		t.Errorf("No client should be registered. Got: %+v", h.clients)
 	}
-	h.Stop()
+	stopHub()
 	if len(h.clients) != 0 {
 		t.Errorf("No client should be registered. Got: %+v", h.clients)
 	}
@@ -27,8 +26,7 @@ func TestHubStartStopNoClient(t *testing.T) {
 func TestHubRegisterDeregisterClients(t *testing.T) {
 	for _, numClient := range []int{0, 1, 2} {
 		t.Run(fmt.Sprintf("register and deregister %d clients", numClient), func(t *testing.T) {
-			h := NewHub()
-			go h.Run()
+			h, stopHub := createHub()
 			ts := httptest.NewServer(http.HandlerFunc(h.NewClient))
 			defer ts.Close()
 
@@ -41,8 +39,7 @@ func TestHubRegisterDeregisterClients(t *testing.T) {
 			if len(h.clients) != numClient {
 				t.Errorf("We expected %d clients to get registered. Got: %+v", numClient, h.clients)
 			}
-			h.Stop()
-			<-time.After(time.Millisecond)
+			stopHub()
 			if len(h.clients) != 0 {
 				t.Errorf("We expected all clients to get deregistered. Got: %+v", h.clients)
 			}
