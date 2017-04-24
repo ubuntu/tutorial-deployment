@@ -3,7 +3,9 @@ go:
  - 1.8
  - master
 
-script: ./runtests
+script:
+  - ./runtests
+  - echo -e "==============\nRace detection\n==============" && go test ./... -race
 
 before_deploy:
   - cd cmd/generate && go build
