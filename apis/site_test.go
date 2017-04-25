@@ -94,7 +94,7 @@ func TestGenerateContent(t *testing.T) {
 	}
 }
 
-func testSaveAPI(t *testing.T) {
+func TestSaveAPI(t *testing.T) {
 	// Setup/Teardown
 	p, teardown := paths.MockPath()
 	defer teardown()
@@ -111,8 +111,8 @@ func testSaveAPI(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s wasn't saved on disk: %v", f, err)
 	}
-	if !reflect.DeepEqual(f, contentF) {
-		t.Errorf("Got %+v; want %+v", f, contentF)
+	if !reflect.DeepEqual(contentF, content) {
+		t.Errorf("Got %+v; want %+v", contentF, content)
 	}
 }
 
