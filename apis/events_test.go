@@ -71,8 +71,8 @@ func TestSaveImages(t *testing.T) {
 			Events{"event-1": event{Name: "Event 1", Logo: "img/event1.jpg", Description: "This workshop is taking place at Event 1."},
 				"event-2": event{Name: "Event 2", Logo: "event2.jpg", Description: "This workshop is taking place at Event 2."},
 			},
-			Events{"event-1": event{Name: "Event 1", Logo: fmt.Sprintf("%s%s/event1.jpg", consts.APIURL, assetsDir), Description: "This workshop is taking place at Event 1."},
-				"event-2": event{Name: "Event 2", Logo: fmt.Sprintf("%s%s/event2.jpg", consts.APIURL, assetsDir), Description: "This workshop is taking place at Event 2."},
+			Events{"event-1": event{Name: "Event 1", Logo: fmt.Sprintf("%sevent1.jpg", consts.ImagesURL), Description: "This workshop is taking place at Event 1."},
+				"event-2": event{Name: "Event 2", Logo: fmt.Sprintf("%sevent2.jpg", consts.ImagesURL), Description: "This workshop is taking place at Event 2."},
 			},
 			false},
 		{"testdata/events/valid-missing-image",
@@ -85,12 +85,15 @@ func TestSaveImages(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("save events: %+v", tc.eventsDir), func(t *testing.T) {
 			// Setup/Teardown
-			out, teardown := testtools.TempDir(t)
+			apiout, teardown := testtools.TempDir(t)
+			defer teardown()
+			imagesout, teardown := testtools.TempDir(t)
 			defer teardown()
 			p, teardown := paths.MockPath()
 			defer teardown()
 			p.MetaData = tc.eventsDir
-			p.API = out
+			p.API = apiout
+			p.Images = imagesout
 
 			// Test
 			err := tc.eventsObj.SaveImages()
@@ -106,7 +109,7 @@ func TestSaveImages(t *testing.T) {
 				t.Errorf("Image paths not correctly changed in event: got %+v; want %+v", tc.eventsObj, tc.wantEvents)
 			}
 			for _, e := range tc.wantEvents {
-				imgP := path.Join(p.API, strings.TrimPrefix(e.Logo, consts.APIURL))
+				imgP := path.Join(p.Images, strings.TrimPrefix(e.Logo, consts.ImagesURL))
 				if _, err := os.Stat(imgP); os.IsNotExist(err) {
 					t.Errorf("%s doesn't exist when we wanted it", imgP)
 				}

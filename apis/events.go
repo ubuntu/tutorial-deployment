@@ -14,7 +14,6 @@ import (
 
 const (
 	eventFilename = "events.yaml"
-	assetsDir     = "assets"
 )
 
 // Events are all events planned and grouping some codelabs
@@ -46,23 +45,22 @@ func NewEvents() (*Events, error) {
 // SaveImages redirect and moves them to api directory
 func (evs *Events) SaveImages() error {
 	p := paths.New()
-	destdir := path.Join(p.API, assetsDir)
-	if err := os.MkdirAll(destdir, 0775); err != nil {
-		return fmt.Errorf("couldn't create %s: %v", destdir, err)
+	if err := os.MkdirAll(p.Images, 0775); err != nil {
+		return fmt.Errorf("couldn't create %s: %v", p.Images, err)
 	}
 	for k, e := range *evs {
 		// path is relative to metadata directory (where the events file is located)
 		src := path.Join(p.MetaData, e.Logo)
-		dest := path.Join(assetsDir, path.Base(e.Logo))
-		e.Logo = path.Join(consts.APIURL, dest)
+		dest := path.Join(p.Images, path.Base(e.Logo))
+		e.Logo = path.Join(consts.ImagesURL, path.Base(e.Logo))
 
 		data, err := ioutil.ReadFile(src)
 		if err != nil {
 			return fmt.Errorf("%s doesn't exist: %v", src, err)
 		}
 
-		if err := ioutil.WriteFile(path.Join(p.API, dest), data, 0644); err != nil {
-			return fmt.Errorf("couldn't create %s: %v", path.Join(p.API, dest), err)
+		if err := ioutil.WriteFile(dest, data, 0644); err != nil {
+			return fmt.Errorf("couldn't create %s: %v", dest, err)
 		}
 
 		(*evs)[k] = e

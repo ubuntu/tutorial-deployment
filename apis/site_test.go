@@ -47,8 +47,11 @@ func TestGenerateContent(t *testing.T) {
 			defer teardown()
 			apidir, teardown := testtools.TempDir(t)
 			defer teardown()
+			imagesdir, teardown := testtools.TempDir(t)
+			defer teardown()
 			p.MetaData = tc.metaDir
 			p.API = apidir
+			p.Images = imagesdir
 
 			// Test
 			dat, err := GenerateContent(tc.codelabs)
@@ -75,10 +78,9 @@ func TestGenerateContent(t *testing.T) {
 				t.Errorf("generate api: got %s; want %s", dat, wanted)
 			}
 
-			assetsP := path.Join(apidir, assetsDir)
-			files, err := ioutil.ReadDir(assetsP)
+			files, err := ioutil.ReadDir(imagesdir)
 			if err != nil {
-				t.Fatalf("couldn't list %s: %v", assetsP, err)
+				t.Fatalf("couldn't list %s: %v", imagesdir, err)
 			}
 			var assets []string
 			for _, file := range files {
