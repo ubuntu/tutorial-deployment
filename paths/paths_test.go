@@ -16,6 +16,7 @@ func TestDetectPaths(t *testing.T) {
 		exportPath   string
 		metadataPath string
 		apiPath      string
+		imagePath    string
 		cwd          string
 
 		// the wanted paths are relative to cwd defined above
@@ -23,20 +24,21 @@ func TestDetectPaths(t *testing.T) {
 		wantExportPath   string
 		wantMetaDataPath string
 		wantAPIPath      string
+		wantImagesPath   string
 		wantErr          bool
 	}{
-		{"/defined/website", "/other/export", "/metadata", "/api", "", "/defined/website", "/other/export", "/metadata", "/api", false},
-		{"/defined/website", "export/path", "alt/metadata", "alt/api", "", "/defined/website", "export/path", "alt/metadata", "alt/api", false},
-		{"", "export/path", "alt/metadata", "alt/api", "", "", "export/path", "alt/metadata", "alt/api", false},                                             // The 3 parameters are sufficient to avoid needing website root detection
-		{"", paths.Export, "alt/metadata", "alt/api", "testdata/nosite", "", "", "", "", true},                                                              // Error due to no site detected
-		{"", paths.Export, "alt/metadata", "alt/api", "testdata/partialwebsite", "", "", "", "", true},                                                      // Error due to no site detected
-		{"", paths.Export, "alt/metadata", "alt/api", "testdata/website", ".", defaultRelativeExportPath, "alt/metadata", "alt/api", false},                 // Defined path are always relative to cwd, not website
-		{"", paths.Export, "alt/metadata", "alt/api", "testdata/website/subdir", "..", "../" + defaultRelativeExportPath, "alt/metadata", "alt/api", false}, // Subdir path detection
-		{"", paths.Export, paths.MetaData, paths.API, "testdata/website", ".", defaultRelativeExportPath, defaultRelativeMetadataPath, defaultRelativeAPIPath, false},
+		{"/defined/website", "/other/export", "/metadata", "/api", "/images/assets", "", "/defined/website", "/other/export", "/metadata", "/api", "/images/assets", false},
+		{"/defined/website", "export/path", "alt/metadata", "alt/api", "alt/images/assets", "", "/defined/website", "export/path", "alt/metadata", "alt/api", "alt/images/assets", false},
+		{"", "export/path", "alt/metadata", "alt/api", "alt/images/assets", "", "", "export/path", "alt/metadata", "alt/api", "alt/images/assets", false},                                             // The 3 parameters are sufficient to avoid needing website root detection
+		{"", paths.Export, "alt/metadata", "alt/api", "alt/images/assets", "testdata/nosite", "", "", "", "", "alt/images/assets", true},                                                              // Error due to no site detected
+		{"", paths.Export, "alt/metadata", "alt/api", "alt/images/assets", "testdata/partialwebsite", "", "", "", "", "alt/images/assets", true},                                                      // Error due to no site detected
+		{"", paths.Export, "alt/metadata", "alt/api", "alt/images/assets", "testdata/website", ".", defaultRelativeExportPath, "alt/metadata", "alt/api", "alt/images/assets", false},                 // Defined path are always relative to cwd, not website
+		{"", paths.Export, "alt/metadata", "alt/api", "alt/images/assets", "testdata/website/subdir", "..", "../" + defaultRelativeExportPath, "alt/metadata", "alt/api", "alt/images/assets", false}, // Subdir path detection
+		{"", paths.Export, paths.MetaData, paths.API, paths.Images, "testdata/website", ".", defaultRelativeExportPath, defaultRelativeMetadataPath, defaultRelativeAPIPath, defaultRelativeImagesPath, false},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("(website: %s), (export: %s), (metadata: %s), (api: %s) in [%s]",
-			tc.websitePath, tc.exportPath, tc.metadataPath, tc.apiPath, tc.cwd), func(t *testing.T) {
+		t.Run(fmt.Sprintf("(website: %s), (export: %s), (metadata: %s), (api: %s), , (images: %s) in [%s]",
+			tc.websitePath, tc.exportPath, tc.metadataPath, tc.apiPath, tc.imagePath, tc.cwd), func(t *testing.T) {
 			// Setup/Teardown
 			defer testtools.Chdir(t, tc.cwd)()
 			cachepath, teardown := MockPath()
@@ -45,12 +47,14 @@ func TestDetectPaths(t *testing.T) {
 			cachepath.Export = tc.exportPath
 			cachepath.MetaData = tc.metadataPath
 			cachepath.API = tc.apiPath
+			cachepath.Images = tc.imagePath
 			if tc.wantWebsitePath != "" {
 				tc.wantWebsitePath = testtools.AbsPath(t, tc.wantWebsitePath)
 			}
 			tc.wantExportPath = testtools.AbsPath(t, tc.wantExportPath)
 			tc.wantMetaDataPath = testtools.AbsPath(t, tc.wantMetaDataPath)
-			tc.wantAPIPath = testtools.AbsPath(t, tc.apiPath)
+			tc.wantAPIPath = testtools.AbsPath(t, tc.wantAPIPath)
+			tc.wantImagesPath = testtools.AbsPath(t, tc.wantImagesPath)
 
 			// Test
 			p := New()
@@ -78,6 +82,9 @@ func TestDetectPaths(t *testing.T) {
 			}
 			if p.API != tc.wantAPIPath {
 				t.Errorf("API: got %s; want %s", p.API, tc.wantAPIPath)
+			}
+			if p.Images != tc.wantImagesPath {
+				t.Errorf("Images: got %s; want %s", p.Images, tc.wantImagesPath)
 			}
 		})
 	}
@@ -125,13 +132,16 @@ func TestCreateTempPathHandling(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	if p.API == "" || p.Export == "" {
-		t.Errorf("one of API (%s) or Export (%s) is empty", p.API, p.Export)
+	if p.API == "" || p.Export == "" || p.Images == "" {
+		t.Errorf("one of API (%s) or Export (%s) or Images (%s) is empty", p.API, p.Export, p.Images)
 		return
 	}
 	tmpdir := p.API[:len(p.API)-len(defaultRelativeAPIPath)]
 	if !strings.HasPrefix(p.Export, tmpdir) {
 		t.Errorf("API (%s) and Export (%s) don't have the same temporary prefix", p.API, p.Export)
+	}
+	if !strings.HasPrefix(p.Images, tmpdir) {
+		t.Errorf("API (%s) and Images (%s) don't have the same temporary prefix", p.API, p.Images)
 	}
 	if _, err := os.Stat(tmpdir); os.IsNotExist(err) {
 		t.Errorf("%s doesn't exists", tmpdir)
@@ -146,8 +156,8 @@ func TestCreateTempPathHandling(t *testing.T) {
 	if _, err := os.Stat(tmpdir); err == nil {
 		t.Errorf("%s still exists", tmpdir)
 	}
-	if p.API != "" || p.Export != "" {
-		t.Errorf("API (%s) and Export (%s) should now be empty", p.API, p.Export)
+	if p.API != "" || p.Export != "" || p.Images != "" {
+		t.Errorf("API (%s), Export (%s) and Images (%s) should now be empty", p.API, p.Export, p.Images)
 	}
 }
 

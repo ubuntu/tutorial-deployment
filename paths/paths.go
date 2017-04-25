@@ -16,6 +16,7 @@ const (
 	defaultRelativeExportPath   = "src/codelabs"
 	defaultRelativeMetadataPath = "metadata"
 	defaultRelativeAPIPath      = "api"
+	defaultRelativeImagesPath   = "images/assets"
 	defaultTutorialPath         = "tutorials"
 
 	// GdocFilename for tutorials in google doc format.
@@ -32,6 +33,8 @@ func init() {
 		fmt.Sprintf("import path for metadata as template and events definition. Default is [WEBSITE_PATH]/%s", defaultRelativeMetadataPath))
 	flag.StringVar(&p.API, "a", defaultRelativeAPIPath,
 		fmt.Sprintf("exported apis for generated tutorials. Default is [WEBSITE_PATH]/%s", defaultRelativeAPIPath))
+	flag.StringVar(&p.Images, "i", defaultRelativeImagesPath,
+		fmt.Sprintf("exported images asset directory for generated events and other things linked in the API file. Default is [WEBSITE_PATH]/%s", defaultRelativeImagesPath))
 }
 
 var (
@@ -46,6 +49,7 @@ type Path struct {
 	Export         string
 	MetaData       string
 	API            string
+	Images         string
 	TutorialInputs []string
 
 	// are out paths export and api temporary? (prevent accidental deletion)
@@ -58,6 +62,8 @@ func New() *Path {
 		paths = Path{
 			Export:   defaultRelativeExportPath,
 			MetaData: defaultRelativeMetadataPath,
+			API:      defaultRelativeAPIPath,
+			Images:   defaultRelativeImagesPath,
 		}
 	})
 	return &paths
@@ -90,6 +96,7 @@ func (p *Path) CreateTempOutPath() error {
 	p.tempRootPath = tmp
 	p.API = path.Join(tmp, consts.APIURL)
 	p.Export = path.Join(tmp, consts.CodelabSrcURL)
+	p.Images = path.Join(tmp, consts.ImagesURL)
 	return nil
 }
 
@@ -100,6 +107,7 @@ func (p *Path) CleanTempPath() error {
 	}
 	p.API = ""
 	p.Export = ""
+	p.Images = ""
 	return os.RemoveAll(p.tempRootPath)
 }
 
@@ -108,7 +116,7 @@ func (p *Path) CleanTempPath() error {
 func (p *Path) DetectPaths() (err error) {
 	// We only need Website if one of the values aren't defined
 	if p.Website == "" &&
-		(p.Export == defaultRelativeExportPath || p.MetaData == defaultRelativeMetadataPath || p.API == defaultRelativeAPIPath) {
+		(p.Export == defaultRelativeExportPath || p.MetaData == defaultRelativeMetadataPath || p.API == defaultRelativeAPIPath || p.Images == defaultRelativeImagesPath) {
 		p.Website, err = detectWebsitePath()
 		if err != nil {
 			return err
@@ -122,6 +130,9 @@ func (p *Path) DetectPaths() (err error) {
 		return err
 	}
 	if err = sanitizeRelPathToWebsite(&p.API, defaultRelativeAPIPath, p.Website); err != nil {
+		return err
+	}
+	if err = sanitizeRelPathToWebsite(&p.Images, defaultRelativeImagesPath, p.Website); err != nil {
 		return err
 	}
 	return nil
