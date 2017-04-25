@@ -154,6 +154,47 @@ func TestHubSendDefficientClients(t *testing.T) {
 	h.Send(msg)
 }
 
+func TestClientClosingConnection(t *testing.T) {
+	h, cleanup := createHub()
+	defer cleanup()
+	ts := httptest.NewServer(http.HandlerFunc(h.NewClient))
+	defer ts.Close()
+
+	// connect our client
+	_, closeClient := addClient(t, ts.URL, h)
+
+	closeClient()
+
+	// wait for unregistration to proceed
+	<-time.After(time.Millisecond)
+	h.muC.RLock()
+	if len(h.clients) != 0 {
+		t.Errorf("We expected all clients to get deregistered. Got: %+v", h.clients)
+	}
+	h.muC.RUnlock()
+}
+
+func TestClientAbnormalCloseConnection(t *testing.T) {
+	h, cleanup := createHub()
+	defer cleanup()
+	ts := httptest.NewServer(http.HandlerFunc(h.NewClient))
+	defer ts.Close()
+
+	// connect our client
+	cl, _ := addClient(t, ts.URL, h)
+
+	// close without message (will trigger a log message)
+	cl.Close()
+
+	// wait for unregistration to proceed
+	<-time.After(time.Millisecond)
+	h.muC.RLock()
+	if len(h.clients) != 0 {
+		t.Errorf("We expected all clients to get deregistered. Got: %+v", h.clients)
+	}
+	h.muC.RUnlock()
+}
+
 // createHub and return a teardown cleanup function
 func createHub() (*Hub, func()) {
 	h := NewHub()
