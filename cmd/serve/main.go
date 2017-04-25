@@ -120,7 +120,7 @@ func refreshAPIs(codelabs []codelab.Codelab, apiDir string) error {
 	if err != nil {
 		return fmt.Errorf("Couldn't generate API: %s", err)
 	}
-	if err != apis.Save(dat) {
+	if err = apis.Save(dat); err != nil {
 		return fmt.Errorf("Couldn't save API: %s", err)
 	}
 	return nil

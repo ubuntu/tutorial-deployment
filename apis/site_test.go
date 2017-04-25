@@ -1,17 +1,16 @@
 package apis
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"reflect"
+	"sort"
 	"testing"
 	"time"
-
-	"bytes"
-
-	"sort"
 
 	"github.com/didrocks/codelab-ubuntu-tools/claat/types"
 	"github.com/ubuntu/tutorial-deployment/codelab"
@@ -113,6 +112,27 @@ func TestSaveAPI(t *testing.T) {
 	}
 	if !reflect.DeepEqual(contentF, content) {
 		t.Errorf("Got %+v; want %+v", contentF, content)
+	}
+}
+
+func TestSaveAPINoPath(t *testing.T) {
+	// Setup/Teardown
+	p, teardown := paths.MockPath()
+	defer teardown()
+	apidir, teardown := testtools.TempDir(t)
+	defer teardown()
+	p.API = apidir
+
+	if err := os.Remove(apidir); err != nil {
+		t.Fatalf("Couldn't remove api dir for test: %v", err)
+	}
+
+	if err := Save([]byte("something")); err != nil {
+		t.Fatalf("Couldn't save API on non existing directory: %v", err)
+	}
+	f := path.Join(apidir, apiFileName)
+	if _, err := os.Stat(f); err != nil {
+		t.Errorf("%s was expected to exist when it doesn't: %v", f, err)
 	}
 }
 

@@ -75,8 +75,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't generate API: %s", err)
 	}
-	if err != apis.Save(dat) {
-		log.Fatalf("Coudln't save API: %s", err)
+	if err := apis.Save(dat); err != nil {
+		log.Fatalf("Couldn't save API: %s", err)
 	}
 }
 

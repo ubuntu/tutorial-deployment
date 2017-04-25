@@ -2,7 +2,9 @@ package apis
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 
 	"github.com/ubuntu/tutorial-deployment/codelab"
@@ -43,5 +45,9 @@ func GenerateContent(c []codelab.Codelab) ([]byte, error) {
 // Save bytes on disk in API file
 func Save(dat []byte) error {
 	p := paths.New()
+	// ensure that the API dir exists
+	if err := os.MkdirAll(p.API, 0775); err != nil {
+		return fmt.Errorf("couldn't create %s: %v", p.API, err)
+	}
 	return ioutil.WriteFile(path.Join(p.API, apiFileName), dat, 0644)
 }
