@@ -61,6 +61,8 @@ func listenForChanges(wg *sync.WaitGroup, stop <-chan struct{}) {
 					cs := impactedCodelabs(event.Name)
 					if err := refreshCodelabs(cs, *p); err != nil {
 						log.Print(err)
+						// do not send refresh signal
+						continue
 					}
 					for _, c := range cs {
 						hub.Send([]byte(c.URL))
@@ -87,6 +89,11 @@ func watchdirs() error {
 }
 
 func refreshCodelabs(cs []*codelab.Codelab, p paths.Path) error {
+	defer func() {
+		if err := registerAllWatchers(); err != nil {
+			log.Printf("Couldn't watch dirs: %v", err)
+		}
+	}()
 	if err := unwatchdirs(); err != nil {
 		return fmt.Errorf("Couldn't unwatch all dirs: %v", err)
 	}
@@ -97,10 +104,6 @@ func refreshCodelabs(cs []*codelab.Codelab, p paths.Path) error {
 	}
 	if err := refreshAPIs(codelabs, p.API); err != nil {
 		return fmt.Errorf("Couldn't refresh: %s", err)
-	}
-
-	if err := registerAllWatchers(); err != nil {
-		return fmt.Errorf("Couldn't watch dirs: %v", err)
 	}
 
 	return nil
