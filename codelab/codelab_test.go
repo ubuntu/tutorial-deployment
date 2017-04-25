@@ -35,7 +35,7 @@ func TestGenerateCodelabs(t *testing.T) {
 		{"/doesnt/exist", false, nil, nil, true},
 		{"testdata/codelabsrc/markdown-no-image.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-no-image.md"}, nil, false},
-		{"testdata/codelabsrc/markdown-invalid-generated-html.md", false, nil, []string{"example-snap-tutorial/index.inc"}, false},
+		{"testdata/codelabsrc/markdown-invalid-generated-html.md", false, nil, []string{"example-snap-tutorial/index.html"}, false},
 		{"testdata/codelabsrc/markdown-with-images-simple.md", false, nil, nil, false},
 		{"testdata/codelabsrc/markdown-with-images-simple.md", true, []string{"testdata/codelabsrc/markdown-with-images-simple.md", "testdata/codelabsrc/foo.png"}, nil, false},
 		{"testdata/codelabsrc/markdown-with-images-online.md", false, nil, nil, false},
@@ -114,8 +114,8 @@ func TestRefreshCodelabs(t *testing.T) {
 		wantDiffFiles    []string
 		wantErr          bool
 	}{
-		{"testdata/codelabsrc/markdown-no-image.md", false, nil, []string{"example-snap-tutorial/index.inc", "example-snap-tutorial/codelab.json", "example-snap-tutorial/img/128451a661545188.png"}, false},
-		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-with-images-simple.md", "testdata/codelabsrc/foo.png"}, []string{"example-snap-tutorial/index.inc", "example-snap-tutorial/codelab.json", "example-snap-tutorial/img/128451a661545188.png"}, false},
+		{"testdata/codelabsrc/markdown-no-image.md", false, nil, []string{"example-snap-tutorial/index.html", "example-snap-tutorial/codelab.json", "example-snap-tutorial/img/128451a661545188.png"}, false},
+		{"testdata/codelabsrc/markdown-no-image.md", true, []string{"testdata/codelabsrc/markdown-with-images-simple.md", "testdata/codelabsrc/foo.png"}, []string{"example-snap-tutorial/index.html", "example-snap-tutorial/codelab.json", "example-snap-tutorial/img/128451a661545188.png"}, false},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("refresh %s, watch: %v", tc.src, tc.watch), func(t *testing.T) {

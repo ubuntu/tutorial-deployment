@@ -227,7 +227,7 @@ func (c *Codelab) writeCodelab() error {
 	}
 
 	// main content file(s)
-	f, err := os.Create(filepath.Join(c.dir, "index.inc"))
+	f, err := os.Create(filepath.Join(c.dir, "index.html"))
 	if err != nil {
 		return err
 	}
