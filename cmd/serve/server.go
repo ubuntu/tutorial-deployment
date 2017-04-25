@@ -26,6 +26,7 @@ func startHTTPServer(port int, wg *sync.WaitGroup, stop <-chan struct{}) {
 	http.HandleFunc("/reload", hub.NewClient)
 
 	http.Handle(consts.APIURL, http.StripPrefix(consts.APIURL, http.FileServer(http.Dir(p.API))))
+	http.Handle(consts.ImagesURL, http.StripPrefix(consts.ImagesURL, http.FileServer(http.Dir(p.Images))))
 	http.Handle(consts.CodelabSrcURL, http.StripPrefix(consts.CodelabSrcURL, http.FileServer(http.Dir(p.Export))))
 	// always serve root file for tutorials if page refreshed
 	http.HandleFunc(consts.ServeRootURL, func(w http.ResponseWriter, r *http.Request) {
