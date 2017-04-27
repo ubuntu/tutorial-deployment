@@ -42,7 +42,6 @@ func registerAllWatchers() error {
 			watchedTriggers[f] = m
 			watchedDirs = append(watchedDirs, path.Dir(f))
 		}
-		log.Printf("DEBUG: codelab: %+v\n", c)
 	}
 	watchedDirs = internaltools.UniqueStrings(watchedDirs)
 	return watchdirs()
@@ -103,7 +102,7 @@ func refreshCodelabs(cs []*codelab.Codelab, p paths.Path) error {
 	}
 	for _, c := range cs {
 		if err := c.Refresh(); err != nil {
-			return fmt.Errorf("Couldn't refresh successfully %s", c.RefURI)
+			return fmt.Errorf("Couldn't refresh successfully %s: %v", c.RefURI, err)
 		}
 	}
 	if err := refreshAPIs(codelabs, p.API); err != nil {
