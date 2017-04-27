@@ -8,6 +8,8 @@ import (
 
 	"fmt"
 
+	"time"
+
 	"github.com/fsnotify/fsnotify"
 	"github.com/ubuntu/tutorial-deployment/codelab"
 	"github.com/ubuntu/tutorial-deployment/internaltools"
@@ -58,6 +60,8 @@ func listenForChanges(wg *sync.WaitGroup, stop <-chan struct{}) {
 				if event.Op&fsnotify.Write == fsnotify.Write ||
 					event.Op&fsnotify.Remove == fsnotify.Remove ||
 					event.Op&fsnotify.Create == fsnotify.Create {
+					// small delay because sometimes the whole source isn't flushed out to disk yet
+					<-time.After(10 * time.Millisecond)
 					cs := impactedCodelabs(event.Name)
 					if err := refreshCodelabs(cs, *p); err != nil {
 						log.Print(err)
