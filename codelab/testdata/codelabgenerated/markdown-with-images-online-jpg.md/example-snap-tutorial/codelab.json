@@ -11,12 +11,12 @@
     "snapcraft"
   ],
   "tags": [
-    "interfaces",
     "content-interfaces",
+    "interfaces",
     "up-to-four"
   ],
   "feedback": "http://Link",
   "difficulty": 2,
   "url": "example-snap-tutorial",
-  "updated": "2017-04-04T17:56:06+02:00"
+  "updated": "2017-05-03T18:10:16+02:00"
 }
