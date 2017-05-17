@@ -1,10 +1,14 @@
+---
 id:example-snap-tutorial
 summary:This tutorial is going to cover a very very interesting topic, but the summary have to stay under 26 words
 categories: snapcraft
 tags: interfaces,content-interfaces,up-to-four
 difficulty: 2
 status: Published
+published: 2017-01-13
 feedback link: http://Link
+
+---
 
 # Example snap tutorial
 
