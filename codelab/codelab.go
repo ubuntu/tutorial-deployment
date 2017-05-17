@@ -36,9 +36,8 @@ const (
 type Codelab struct {
 	RefURI string `json:"-"` // Reference uri path
 	types.Codelab
-	Updated      types.ContextTime `json:"updated,omitempty"` // Last update timestamp
-	FilesWatched []string          `json:"-"`                 // Path to asset files to watch
-	HideSteps    *struct{}         `json:"Steps,omitempty"`   // Hide the Steps json export from types.Codelab with this nil object
+	FilesWatched []string  `json:"-"`               // Path to asset files to watch
+	HideSteps    *struct{} `json:"Steps,omitempty"` // Hide the Steps json export from types.Codelab with this nil object
 
 	watch    bool   // We will need to watch files
 	dir      string // path where the codelab is stored
@@ -119,7 +118,6 @@ func (c *Codelab) download() error {
 	}
 
 	c.Codelab = *clab
-	c.Updated = types.ContextTime(res.Mod)
 	c.appendResourceToWatchFile(c.RefURI)
 	return nil
 }
