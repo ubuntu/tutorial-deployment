@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"sort"
 	"strings"
 	"testing"
@@ -168,9 +167,6 @@ func tempDir(t *testing.T) (string, func()) {
 
 // compare recursively all original and generated file content
 func compareAll(t *testing.T, original, generated string, ignoresf []string) {
-	// we ignore the "updated" field, as the timestamp is the one from the git checkout and not
-	// the last modification on disk on the developer's machine.
-	updateFieldReplace := regexp.MustCompile("\"updated.*\n")
 	var difff []string
 	if err := filepath.Walk(original, func(f string, fi os.FileInfo, err error) error {
 		relp := strings.TrimPrefix(f, original)
@@ -203,12 +199,10 @@ func compareAll(t *testing.T, original, generated string, ignoresf []string) {
 		if err != nil {
 			t.Fatalf("Couldn't read %s: %v", f, err)
 		}
-		wanted = updateFieldReplace.ReplaceAll(wanted, nil)
 		actual, err := ioutil.ReadFile(p)
 		if err != nil {
 			t.Fatalf("Couldn't read %s: %v", p, err)
 		}
-		actual = updateFieldReplace.ReplaceAll(actual, nil)
 		if !bytes.Equal(actual, wanted) {
 			difff = append(difff, relp)
 			if !testtools.StringContains(ignoresf, relp) {
