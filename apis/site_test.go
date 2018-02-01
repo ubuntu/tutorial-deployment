@@ -23,7 +23,7 @@ var update = flag.Bool("update", false, "update generated files")
 func TestGenerateContent(t *testing.T) {
 	published := types.LegacyStatus([]string{"Published"})
 	exCodelabs := []codelab.Codelab{
-		codelab.Codelab{RefURI: "REFPATH1", Codelab: types.Codelab{Meta: types.Meta{ID: "123", Title: "A title", Status: &published, Published: stringToContextTime(t, "1983-09-13"), Summary: "Awesome tutorial", URL: "https://tutorial1.com", Difficulty: 3, Categories: []string{"category1", "category2"}, Tags: []string{"foo", "bar"}, Duration: 60, Feedback: "http://feedback.com"}}, FilesWatched: []string{"onefile", "twofiles"}},
+		codelab.Codelab{RefURI: "REFPATH1", Codelab: types.Codelab{Meta: types.Meta{ID: "123", Title: "A title", Status: &published, Published: stringToContextTime(t, "1983-09-13"), Summary: "Awesome tutorial", URL: "https://tutorial1.com", Difficulty: 3, Categories: []string{"category1", "category2"}, Tags: []string{"foo", "bar"}, Duration: 60, Feedback: "http://feedback.com", Image: "image.png"}}, FilesWatched: []string{"onefile", "twofiles"}},
 		codelab.Codelab{},
 		codelab.Codelab{RefURI: "REFPATH2", Codelab: types.Codelab{Meta: types.Meta{ID: "456", Published: stringToContextTime(t, "1984-04-22")}}},
 	}
