@@ -21,4 +21,4 @@ deploy:
     - cmd/serve/serve
   on:
     tags: true
-    repo: ubuntu/tutorial-deployment
+    repo: Ubuntu/tutorial-deployment
