@@ -37,6 +37,7 @@
       "feedback": "http://feedback.com",
       "difficulty": 3,
       "published": "1983-09-13T00:00:00Z",
+      "image": "image.png",
       "url": "https://tutorial1.com"
     },
     {
